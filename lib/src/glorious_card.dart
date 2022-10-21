@@ -10,41 +10,64 @@ import 'package:flutter/material.dart';
 class GloriousCard extends StatefulWidget {
   const GloriousCard({
     required this.child,
-    required this.aspectRatio,
-    required this.cornerRadius,
-    required this.maxAngleX,
-    required this.maxAngleY,
-    required this.elevation,
+    required this.maxAngle,
     Key? key,
   }) : super(key: key);
 
   final Widget child;
-  final double aspectRatio;
-  final double cornerRadius;
-  final double maxAngleX;
-  final double maxAngleY;
-  final double elevation;
+
+  final double maxAngle;
 
   @override
   State<GloriousCard> createState() => _GloriousCardState();
 }
 
 class _GloriousCardState extends State<GloriousCard> {
-  Offset _offset = Offset.zero;
+  Offset _localPosition = Offset.zero;
 
   @override
   Widget build(BuildContext context) {
-    return Transform(
-      transform: Matrix4.identity()
-        ..setEntry(3, 2, 0.001)
-        ..rotateX(0.01 * _offset.dy)
-        ..rotateY(-0.01 * _offset.dx),
-      alignment: FractionalOffset.center,
-      child: GestureDetector(
-        onPanUpdate: (details) => setState(() => _offset += details.delta),
-        onDoubleTap: () => setState(() => _offset = Offset.zero),
-        child: widget.child,
-      ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return MouseRegion(
+          onHover: _onHover,
+          onExit: _onExit,
+          child: Transform(
+            transform: _getTransform(constraints),
+            alignment: FractionalOffset.center,
+            child: widget.child,
+          ),
+        );
+      },
     );
+  }
+
+  Matrix4 _getTransform(BoxConstraints constraints) {
+    if (_localPosition == Offset.zero) {
+      return Matrix4.identity();
+    }
+
+    final center = Offset(
+      constraints.maxWidth / 2,
+      constraints.maxHeight / 2,
+    );
+
+    final angleX = (center.dy - _localPosition.dy) / center.dy * widget.maxAngle;
+    final angleY = (center.dx - _localPosition.dx) / center.dx * widget.maxAngle;
+
+    return Matrix4.identity()
+      ..setEntry(3, 2, 0.001)
+      ..rotateX(angleX)
+      ..rotateY(-angleY);
+  }
+
+  void _onHover(PointerEvent event) {
+    setState(() {
+      _localPosition = event.localPosition;
+    });
+  }
+
+  void _onExit(PointerEvent event) {
+    setState(() => _localPosition = Offset.zero);
   }
 }

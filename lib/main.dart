@@ -44,14 +44,17 @@ class _MyHomePageState extends State<MyHomePage> {
         children: List.generate(
           8,
           (index) => GloriousCard(
-            aspectRatio: 1,
-            cornerRadius: 16,
-            maxAngleX: 100,
-            maxAngleY: 100,
-            elevation: 20,
+            maxAngle: pi / 6,
             child: Container(
               decoration: BoxDecoration(
-                color: Color(Random(index).nextInt(pow(2, 32) as int)),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Colors.black12,
+                    blurRadius: 5,
+                    spreadRadius: 5,
+                  ),
+                ],
+                color: Color(Random(index).nextInt(pow(2, 32) as int)).withOpacity(1),
                 borderRadius: BorderRadius.circular(16),
               ),
             ),
