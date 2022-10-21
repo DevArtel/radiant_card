@@ -27,27 +27,33 @@ class GloriousCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-          color: Colors.white,
-          // shape:
-          borderRadius: BorderRadius.circular(cornerRadius),
-          boxShadow: const [
-            BoxShadow(
-              color: Colors.black12,
-              blurRadius: 2,
-              offset: Offset(1, 1),
-              spreadRadius: 3,
-            )
-          ]),
-      child: Stack(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: child,
-          ),
-          const BugiWugi(),
-        ],
+    return Transform(
+      transform: Matrix4.identity()
+        ..setEntry(3, 2, 0.001)
+        ..rotateY(0.5)
+        ..rotateX(0.5),
+      child: Container(
+        decoration: BoxDecoration(
+            color: Colors.white,
+            // shape:
+            borderRadius: BorderRadius.circular(cornerRadius),
+            boxShadow: const [
+              BoxShadow(
+                color: Colors.black12,
+                blurRadius: 2,
+                offset: Offset(1, 1),
+                spreadRadius: 3,
+              )
+            ]),
+        child: Stack(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: child,
+            ),
+            const BugiWugi(),
+          ],
+        ),
       ),
     );
   }
