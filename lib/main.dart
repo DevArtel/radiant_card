@@ -1,7 +1,8 @@
-import 'package:flutter/material.dart';
-import 'package:ohso3d/glorious_card.dart';
+import 'dart:math';
 
-///
+import 'package:flutter/material.dart';
+import 'package:ohso3d/src/glorious_card.dart';
+
 void main() {
   runApp(const MyApp());
 }
@@ -9,22 +10,19 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const MyHomePage(),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  final String title;
+  const MyHomePage({super.key});
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -35,29 +33,29 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: const Text('Cards demo'),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: const <Widget>[
-            Text(
-              'This is going ot be awesome',
-            ),
-            Expanded(
-              child: Padding(
-                padding: EdgeInsets.all(24.0),
-                child: GloriousCard(
-                  aspectRatio: 1,
-                  cornerRadius: 16,
-                  maxAngleX: 100,
-                  maxAngleY: 100,
-                  elevation: 20,
-                  child: Text('hi'),
-                ),
+      body: GridView.count(
+        padding: const EdgeInsets.all(16),
+        crossAxisCount: 4,
+        crossAxisSpacing: 16,
+        mainAxisSpacing: 16,
+        childAspectRatio: 0.7,
+        children: List.generate(
+          8,
+          (index) => GloriousCard(
+            aspectRatio: 1,
+            cornerRadius: 16,
+            maxAngleX: 100,
+            maxAngleY: 100,
+            elevation: 20,
+            child: Container(
+              decoration: BoxDecoration(
+                color: Color(Random(index).nextInt(pow(2, 32) as int)),
+                borderRadius: BorderRadius.circular(16),
               ),
             ),
-          ],
+          ),
         ),
       ),
     );
