@@ -36,6 +36,7 @@ class _MyHomePageState extends State<MyHomePage> {
         title: const Text('Cards demo'),
       ),
       body: GridView.count(
+        physics: const NeverScrollableScrollPhysics(),
         padding: const EdgeInsets.all(16),
         crossAxisCount: 4,
         crossAxisSpacing: 16,
