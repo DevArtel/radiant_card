@@ -18,8 +18,8 @@ layout(location = 6) uniform vec3 specularColor;
 layout(location = 7) uniform vec3 lightPos; // Light position
 
 void main() {
-  //vec3 vertPos = vec3(gl_FragCoord.x, gl_FragCoord.y, gl_FragCoord.z);
-  vec3 vertPos = vec3(0.0, 0.0, 0.0);
+  vec3 vertPos = vec3(gl_FragCoord.x / gl_FragCoord.w, gl_FragCoord.y / gl_FragCoord.w, gl_FragCoord.z / gl_FragCoord.w);
+  //vec3 vertPos = vec3(0.0, 0.0, 0.0);
   // vec3 N = normalize(normalInterp);
   vec3 N = vec3(0.0, 0.0, -1.0);
   vec3 L = normalize(lightPos - vertPos);
