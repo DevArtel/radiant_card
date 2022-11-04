@@ -114,9 +114,6 @@ class ShaderPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final scaleFactor = min(size.width, size.height);
-    final dx = (offset.dx - size.width / 2) / scaleFactor;
-    final dy = (offset.dy - size.height / 2) / scaleFactor;
     final phongShader = phongProgram.shader(
       floatUniforms: Float32List.fromList(<double>[
         1, // Ka
@@ -126,7 +123,7 @@ class ShaderPainter extends CustomPainter {
         0, 0, 0, // ambientColor
         112 / 256.0, 0 / 256.0, 204 / 256.0, // diffuseColor
         1, 1, 1, // specularColor
-        dx, dy, -20.0, // lightPos
+        offset.dx, offset.dy, -100, // lightPos
         size.width, size.height, // viewportSize
         0, 0, -1, // surfaceNormal
       ]),

@@ -16,18 +16,13 @@ layout(location = 8) uniform vec2 viewportSize; // viewport size
 layout(location = 9) uniform vec3 surfaceNormal; // surface normal
 
 void main() {
-  // final scaleFactor = min(size.width, size.height);
-  // final dx = (offset.dx - size.width / 2) / scaleFactor;
-  // final dy = (offset.dy - size.height / 2) / scaleFactor;
-  // final lightPosZ = -20.0 / scaleFactor; // -sqrt(dx * dx + dy * dy) * 2  / scaleFactor;
-
   float scaleFactor = min(viewportSize.x, viewportSize.y);
 
   vec3 vertPos = vec3((gl_FragCoord.x - viewportSize.x / 2.0) / scaleFactor, (gl_FragCoord.y - viewportSize.y / 2.0) / scaleFactor, 0);
   vec3 viewerPos = vec3(0.0, 0.0, -1.0);
 
   vec3 N = normalize(surfaceNormal);
-  vec3 L = normalize(vec3(lightPos.x, lightPos.y, lightPos.z / scaleFactor) - vertPos);
+  vec3 L = normalize(vec3(lightPos.x - viewportSize.x / 2.0, lightPos.y - viewportSize.y / 2.0, lightPos.z) / scaleFactor - vertPos);
 
   // Lambert's cosine law
   float lambertian = max(dot(N, L), 0.0);
