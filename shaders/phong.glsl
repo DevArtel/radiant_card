@@ -4,24 +4,24 @@ precision mediump float;
 
 layout(location = 0) out vec4 fragColor;
 
-// layout(location = 0) in vec3 normalInterp;  // Surface normal
-// layout(location = 1) in vec3 gl_FragCoord;       // Vertex position
-// layout(location = 0) uniform int mode;   // Rendering mode
 layout(location = 0) uniform float Ka;   // Ambient reflection coefficient
 layout(location = 1) uniform float Kd;   // Diffuse reflection coefficient
 layout(location = 2) uniform float Ks;   // Specular reflection coefficient
 layout(location = 3) uniform float shininessVal; // Shininess
-// Material color
-layout(location = 4) uniform vec3 ambientColor;
-layout(location = 5) uniform vec3 diffuseColor;
-layout(location = 6) uniform vec3 specularColor;
+layout(location = 4) uniform vec3 ambientColor; // Material color
+layout(location = 5) uniform vec3 diffuseColor; // Material color
+layout(location = 6) uniform vec3 specularColor; // Material color
 layout(location = 7) uniform vec3 lightPos; // Light position
+layout(location = 8) uniform vec2 viewportSize; // viewport size
+layout(location = 9) uniform vec3 surfaceNormal; // surface normal
 
 void main() {
-  vec3 vertPos = vec3(gl_FragCoord.x / gl_FragCoord.w, gl_FragCoord.y / gl_FragCoord.w, gl_FragCoord.z / gl_FragCoord.w);
-  //vec3 vertPos = vec3(0.0, 0.0, 0.0);
-  // vec3 N = normalize(normalInterp);
-  vec3 N = vec3(0.0, 0.0, -1.0);
+  float scaleFactor = min(viewportSize.x, viewportSize.y);
+
+  vec3 vertPos = vec3((gl_FragCoord.x - viewportSize.x / 2.0) / scaleFactor, (gl_FragCoord.y - viewportSize.y / 2.0) / scaleFactor, 0);
+  vec3 viewerPos = vec3(0.0, 0.0, -1.0);
+
+  vec3 N = normalize(surfaceNormal);
   vec3 L = normalize(lightPos - vertPos);
 
   // Lambert's cosine law
@@ -29,7 +29,7 @@ void main() {
   float specular = 0.0;
   if(lambertian > 0.0) {
     vec3 R = reflect(-L, N);      // Reflected light vector
-    vec3 V = normalize(-vertPos); // Vector to viewer
+    vec3 V = normalize(viewerPos - vertPos); // Vector to viewer
     // Compute the specular term
     float specAngle = max(dot(R, V), 0.0);
     specular = pow(specAngle, shininessVal);
