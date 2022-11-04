@@ -93,10 +93,8 @@ class _MyHomePageState extends State<MyHomePage> {
           8,
           (index) => GloriousCard(
               maxAngle: pi / 6,
-              child: Container(
-                child: CustomPaint(
-                  painter: ShaderPainter(),
-                ),
+              child: CustomPaint(
+                painter: ShaderPainter(),
               )
               // Container(
               //   decoration: BoxDecoration(
