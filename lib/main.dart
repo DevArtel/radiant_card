@@ -1,9 +1,9 @@
 import 'dart:typed_data';
 import 'dart:ui' as ui;
-import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:vector_math/vector_math.dart';
 
 late final ui.FragmentProgram phongProgram;
 
@@ -24,8 +24,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
+          // primarySwatch: Colors.blue,
+          ),
       home: const MyHomePage(),
     );
   }
@@ -54,7 +54,7 @@ class _MyHomePageState extends State<MyHomePage> {
         childAspectRatio: 0.7,
         children: List.generate(
           1,
-            (index) => const SingleCardWidget(),
+          (index) => const SingleCardWidget(),
           // (index) => GloriousCard(
           //     maxAngle: pi / 6,
           //     child: CustomPaint(
@@ -90,27 +90,36 @@ class SingleCardWidget extends StatefulWidget {
 }
 
 class _SingleCardWidgetState extends State<SingleCardWidget> {
-  Offset _offset = Offset.zero;
+  Offset _pointerPosition = Offset.zero;
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onPanUpdate: (details) {
-        setState(() {
-          _offset = details.localPosition;
-        });
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final center = constraints.biggest.center(Offset.zero);
+        return GestureDetector(
+          child: CustomPaint(
+            painter: ShaderPainter(
+              lightPos: Vector3(center.dx, center.dy, -100),
+              surfaceNormal: Vector3(0, 0, -1),
+            ),
+          ),
+          onPanUpdate: (details) {
+            setState(() {
+              _pointerPosition = details.localPosition - center;
+            });
+          },
+        );
       },
-      child: CustomPaint(
-        painter: ShaderPainter(offset: _offset),
-      ),
     );
   }
 }
 
 class ShaderPainter extends CustomPainter {
-  final Offset offset;
+  final Vector3 lightPos;
+  final Vector3 surfaceNormal;
 
-  ShaderPainter({required this.offset});
+  ShaderPainter({required this.lightPos, required this.surfaceNormal});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -123,9 +132,9 @@ class ShaderPainter extends CustomPainter {
         0, 0, 0, // ambientColor
         112 / 256.0, 0 / 256.0, 204 / 256.0, // diffuseColor
         1, 1, 1, // specularColor
-        offset.dx, offset.dy, -100, // lightPos
+        lightPos.x, lightPos.y, lightPos.z, // lightPos
         size.width, size.height, // viewportSize
-        0, 0, -1, // surfaceNormal
+        surfaceNormal.x, surfaceNormal.y, surfaceNormal.z, // surfaceNormal
       ]),
     );
     final paint = Paint()..shader = phongShader;
