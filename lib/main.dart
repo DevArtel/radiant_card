@@ -104,7 +104,7 @@ class _SingleCardWidgetState extends State<SingleCardWidget> {
           -_pointerPosition.dx,
           -_pointerPosition.dy,
           -max(center.dx, center.dy),
-        ).normalized();
+        );
         final viewerPos = Vector3(0, 0, -1);
 
         final angleX = Vector3(0, surfaceNormal.y, surfaceNormal.z).angleTo(viewerPos) * surfaceNormal.y.sign;
