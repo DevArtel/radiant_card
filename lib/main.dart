@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
@@ -101,7 +102,7 @@ class _SingleCardWidgetState extends State<SingleCardWidget> {
           child: CustomPaint(
             painter: ShaderPainter(
               lightPos: Vector3(center.dx, center.dy, -100),
-              surfaceNormal: Vector3(0, 0, -1),
+              surfaceNormal: Vector3(_pointerPosition.dx, _pointerPosition.dy, -max(center.dx, center.dy)).normalized(),
             ),
           ),
           onPanUpdate: (details) {
