@@ -19,10 +19,14 @@ layout(location = 10) uniform vec3 viewerPos; // viewer position
 void main() {
   float scaleFactor = min(viewportSize.x, viewportSize.y);
 
-  vec3 vertPos = vec3((gl_FragCoord.x - viewportSize.x / 2.0) / scaleFactor, (gl_FragCoord.y - viewportSize.y / 2.0) / scaleFactor, 0);
+  vec3 vertPos = vec3(
+     (gl_FragCoord.x - viewportSize.x / 2.0) / scaleFactor,
+     (gl_FragCoord.y - viewportSize.y / 2.0) / scaleFactor,
+     0
+  );
 
   vec3 N = normalize(surfaceNormal);
-  vec3 L = normalize(vec3(lightPos.x - viewportSize.x / 2.0, lightPos.y - viewportSize.y / 2.0, lightPos.z) / scaleFactor - vertPos);
+  vec3 L = normalize(lightPos - vertPos);
 
   // Lambert's cosine law
   float lambertian = max(dot(N, L), 0.0);
@@ -30,18 +34,9 @@ void main() {
   if(lambertian > 0.0) {
     vec3 R = reflect(-L, N);      // Reflected light vector
     vec3 V = normalize(viewerPos - vertPos); // Vector to viewer
-    // Compute the specular term
     float specAngle = max(dot(R, V), 0.0);
     specular = pow(specAngle, shininessVal);
   }
-  fragColor = vec4(Ka * ambientColor +
-                      Kd * lambertian * diffuseColor +
-                      Ks * specular * specularColor, 1.0);
 
-  // only ambient
-  // if(mode == 2) fragColor = vec4(Ka * ambientColor, 1.0);
-  // only diffuse
-  // if(mode == 3) fragColor = vec4(Kd * lambertian * diffuseColor, 1.0);
-  // only specular
-  // if(mode == 4) fragColor = vec4(Ks * specular * specularColor, 1.0);
+  fragColor = vec4(Ka * ambientColor + Kd * lambertian * diffuseColor + Ks * specular * specularColor, 1.0);
 }

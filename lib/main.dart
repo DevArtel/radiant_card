@@ -98,14 +98,18 @@ class _SingleCardWidgetState extends State<SingleCardWidget> {
     return LayoutBuilder(
       builder: (context, constraints) {
         final center = constraints.biggest.center(Offset.zero);
+
+        final lightPos = Vector3(0, 0, -0.5);
         final surfaceNormal = Vector3(
           -_pointerPosition.dx,
           -_pointerPosition.dy,
           -max(center.dx, center.dy),
         ).normalized();
         final viewerPos = Vector3(0, 0, -1);
+
         final angleX = Vector3(0, surfaceNormal.y, surfaceNormal.z).angleTo(viewerPos) * surfaceNormal.y.sign;
         final angleY = Vector3(surfaceNormal.x, 0, surfaceNormal.z).angleTo(viewerPos) * -surfaceNormal.x.sign;
+
         return GestureDetector(
           child: Transform(
             alignment: FractionalOffset.center,
@@ -115,9 +119,9 @@ class _SingleCardWidgetState extends State<SingleCardWidget> {
               ..rotateY(angleY),
             child: CustomPaint(
               painter: ShaderPainter(
-                lightPos: Vector3(center.dx, center.dy, -100),
+                lightPos: lightPos,
                 surfaceNormal: surfaceNormal,
-                viewerPos: Vector3(0, 0, -1),
+                viewerPos: viewerPos,
               ),
             ),
           ),
