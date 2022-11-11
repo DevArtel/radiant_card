@@ -14,12 +14,12 @@ layout(location = 6) uniform vec3 specularColor; // Material color
 layout(location = 7) uniform vec3 lightPos; // Light position
 layout(location = 8) uniform vec2 viewportSize; // viewport size
 layout(location = 9) uniform vec3 surfaceNormal; // surface normal
+layout(location = 10) uniform vec3 viewerPos; // viewer position
 
 void main() {
   float scaleFactor = min(viewportSize.x, viewportSize.y);
 
   vec3 vertPos = vec3((gl_FragCoord.x - viewportSize.x / 2.0) / scaleFactor, (gl_FragCoord.y - viewportSize.y / 2.0) / scaleFactor, 0);
-  vec3 viewerPos = vec3(0.0, 0.0, -1.0);
 
   vec3 N = normalize(surfaceNormal);
   vec3 L = normalize(vec3(lightPos.x - viewportSize.x / 2.0, lightPos.y - viewportSize.y / 2.0, lightPos.z) / scaleFactor - vertPos);

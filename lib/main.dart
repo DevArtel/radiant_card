@@ -4,7 +4,7 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:vector_math/vector_math.dart';
+import 'package:vector_math/vector_math.dart' hide Matrix4;
 
 late final ui.FragmentProgram phongProgram;
 
@@ -98,11 +98,27 @@ class _SingleCardWidgetState extends State<SingleCardWidget> {
     return LayoutBuilder(
       builder: (context, constraints) {
         final center = constraints.biggest.center(Offset.zero);
+        final surfaceNormal = Vector3(
+          -_pointerPosition.dx,
+          -_pointerPosition.dy,
+          -max(center.dx, center.dy),
+        ).normalized();
+        final viewerPos = Vector3(0, 0, -1);
+        final angleX = Vector3(0, surfaceNormal.y, surfaceNormal.z).angleTo(viewerPos) * surfaceNormal.y.sign;
+        final angleY = Vector3(surfaceNormal.x, 0, surfaceNormal.z).angleTo(viewerPos) * -surfaceNormal.x.sign;
         return GestureDetector(
-          child: CustomPaint(
-            painter: ShaderPainter(
-              lightPos: Vector3(center.dx, center.dy, -100),
-              surfaceNormal: Vector3(_pointerPosition.dx, _pointerPosition.dy, -max(center.dx, center.dy)).normalized(),
+          child: Transform(
+            alignment: FractionalOffset.center,
+            transform: Matrix4.identity()
+              ..setEntry(3, 2, 0.001)
+              ..rotateX(angleX)
+              ..rotateY(angleY),
+            child: CustomPaint(
+              painter: ShaderPainter(
+                lightPos: Vector3(center.dx, center.dy, -100),
+                surfaceNormal: surfaceNormal,
+                viewerPos: Vector3(0, 0, -1),
+              ),
             ),
           ),
           onPanUpdate: (details) {
@@ -119,8 +135,13 @@ class _SingleCardWidgetState extends State<SingleCardWidget> {
 class ShaderPainter extends CustomPainter {
   final Vector3 lightPos;
   final Vector3 surfaceNormal;
+  final Vector3 viewerPos;
 
-  ShaderPainter({required this.lightPos, required this.surfaceNormal});
+  ShaderPainter({
+    required this.lightPos,
+    required this.surfaceNormal,
+    required this.viewerPos,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -136,6 +157,7 @@ class ShaderPainter extends CustomPainter {
         lightPos.x, lightPos.y, lightPos.z, // lightPos
         size.width, size.height, // viewportSize
         surfaceNormal.x, surfaceNormal.y, surfaceNormal.z, // surfaceNormal
+        viewerPos.x, viewerPos.y, viewerPos.z,
       ]),
     );
     final paint = Paint()..shader = phongShader;
