@@ -24,22 +24,15 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      theme: ThemeData(
-          // primarySwatch: Colors.blue,
-          ),
+      theme: ThemeData(),
       home: const MyHomePage(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
+class MyHomePage extends StatelessWidget {
   const MyHomePage({super.key});
 
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -56,25 +49,6 @@ class _MyHomePageState extends State<MyHomePage> {
         children: List.generate(
           1,
           (index) => const SingleCardWidget(),
-          // (index) => GloriousCard(
-          //     maxAngle: pi / 6,
-          //     child: CustomPaint(
-          //       painter: ShaderPainter(),
-          //     )
-          //     // Container(
-          //     //   decoration: BoxDecoration(
-          //     //     boxShadow: const [
-          //     //       BoxShadow(
-          //     //         color: Colors.black12,
-          //     //         blurRadius: 5,
-          //     //         spreadRadius: 5,
-          //     //       ),
-          //     //     ],
-          //     //     color: Color(Random(index).nextInt(pow(2, 32) as int)).withOpacity(1),
-          //     //     borderRadius: BorderRadius.circular(16),
-          //     //   ),
-          //     // ),
-          //     ),
         ),
       ),
     );
