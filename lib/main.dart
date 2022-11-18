@@ -69,27 +69,41 @@ class _SingleCardWidgetState extends State<SingleCardWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final center = constraints.biggest.center(Offset.zero);
-        final surfaceNormal = Vector3(
-          -_pointerPosition.dx,
-          -_pointerPosition.dy,
-          -max(center.dx, center.dy),
-        );
+    return FutureBuilder(
+      future: getImage(),
+      builder: (context, snapshot) => !snapshot.hasData
+          ? const SizedBox.shrink()
+          : LayoutBuilder(
+              builder: (context, constraints) {
+                final image = snapshot.data!;
 
-        return GestureDetector(
-          child: GlossyCard(
-            offset: center,
-            surfaceNormal: surfaceNormal,
-          ),
-          onPanUpdate: (details) {
-            setState(() {
-              _pointerPosition = details.localPosition - center;
-            });
-          },
-        );
-      },
+                final center = constraints.biggest.center(Offset.zero);
+                final surfaceNormal = Vector3(
+                  -_pointerPosition.dx,
+                  -_pointerPosition.dy,
+                  -max(center.dx, center.dy),
+                );
+
+                return GestureDetector(
+                  child: GlossyCard(
+                    offset: center,
+                    surfaceNormal: surfaceNormal,
+                    image: image,
+                  ),
+                  onPanUpdate: (details) {
+                    setState(() {
+                      _pointerPosition = details.localPosition - center;
+                    });
+                  },
+                );
+              },
+            ),
     );
+  }
+
+  Future<ui.Image> getImage() async {
+    final asset = await rootBundle.load("assets/images/pikachu.png");
+    final image = await decodeImageFromList(asset.buffer.asUint8List());
+    return image;
   }
 }
