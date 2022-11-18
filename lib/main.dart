@@ -1,9 +1,9 @@
 import 'dart:math';
-import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:ohso3d/glossy_card.dart';
 import 'package:vector_math/vector_math.dart' hide Matrix4;
 
 late final ui.FragmentProgram phongProgram;
@@ -72,32 +72,16 @@ class _SingleCardWidgetState extends State<SingleCardWidget> {
     return LayoutBuilder(
       builder: (context, constraints) {
         final center = constraints.biggest.center(Offset.zero);
-
-        final lightPos = Vector3(0, 0, -0.5);
         final surfaceNormal = Vector3(
           -_pointerPosition.dx,
           -_pointerPosition.dy,
           -max(center.dx, center.dy),
         );
-        final viewerPos = Vector3(0, 0, -1);
-
-        final angleX = Vector3(0, surfaceNormal.y, surfaceNormal.z).angleTo(viewerPos) * surfaceNormal.y.sign;
-        final angleY = Vector3(surfaceNormal.x, 0, surfaceNormal.z).angleTo(viewerPos) * -surfaceNormal.x.sign;
 
         return GestureDetector(
-          child: Transform(
-            alignment: FractionalOffset.center,
-            transform: Matrix4.identity()
-              ..setEntry(3, 2, 0.001)
-              ..rotateX(angleX)
-              ..rotateY(angleY),
-            child: CustomPaint(
-              painter: ShaderPainter(
-                lightPos: lightPos,
-                surfaceNormal: surfaceNormal,
-                viewerPos: viewerPos,
-              ),
-            ),
+          child: GlossyCard(
+            offset: center,
+            surfaceNormal: surfaceNormal,
           ),
           onPanUpdate: (details) {
             setState(() {
@@ -108,40 +92,4 @@ class _SingleCardWidgetState extends State<SingleCardWidget> {
       },
     );
   }
-}
-
-class ShaderPainter extends CustomPainter {
-  final Vector3 lightPos;
-  final Vector3 surfaceNormal;
-  final Vector3 viewerPos;
-
-  ShaderPainter({
-    required this.lightPos,
-    required this.surfaceNormal,
-    required this.viewerPos,
-  });
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final phongShader = phongProgram.shader(
-      floatUniforms: Float32List.fromList(<double>[
-        1, // Ka
-        1, // Kd
-        1, // Ks
-        80, // shininessVal
-        0, 0, 0, // ambientColor
-        112 / 256.0, 0 / 256.0, 204 / 256.0, // diffuseColor
-        1, 1, 1, // specularColor
-        lightPos.x, lightPos.y, lightPos.z, // lightPos
-        size.width, size.height, // viewportSize
-        surfaceNormal.x, surfaceNormal.y, surfaceNormal.z, // surfaceNormal
-        viewerPos.x, viewerPos.y, viewerPos.z,
-      ]),
-    );
-    final paint = Paint()..shader = phongShader;
-    canvas.drawRect(Rect.fromLTRB(0, 0, size.width, size.height), paint);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
