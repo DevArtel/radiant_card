@@ -5,6 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:ohso3d/main.dart';
 import 'package:vector_math/vector_math.dart' hide Matrix4;
 
+
+//todo card aspect ratio
+//todo cool shit
 class GlossyCard extends StatelessWidget {
   const GlossyCard({
     required this.offset,
@@ -50,7 +53,7 @@ class ShaderPainter extends CustomPainter {
     required this.lightPos,
     required this.surfaceNormal,
     required this.viewerPos,
-    required ui.Image image,
+    required this.image,
   }) : imageShader = ImageShader(
           image,
           // Specify how image repetition is handled for x and y dimension
@@ -63,6 +66,7 @@ class ShaderPainter extends CustomPainter {
   final Vector3 lightPos;
   final Vector3 surfaceNormal;
   final Vector3 viewerPos;
+  final ui.Image image;
   final ImageShader imageShader;
 
   @override
@@ -83,6 +87,7 @@ class ShaderPainter extends CustomPainter {
           size.width, size.height, // viewportSize
           surfaceNormal.x, surfaceNormal.y, surfaceNormal.z, // surfaceNormal
           viewerPos.x, viewerPos.y, viewerPos.z,
+          image.width.toDouble(), image.height.toDouble(),
         ],
       ),
       samplerUniforms: [imageShader],

@@ -42,12 +42,12 @@ class MyHomePage extends StatelessWidget {
       body: GridView.count(
         physics: const NeverScrollableScrollPhysics(),
         padding: const EdgeInsets.all(16),
-        crossAxisCount: 1,
+        crossAxisCount: 2,
         crossAxisSpacing: 16,
         mainAxisSpacing: 16,
         childAspectRatio: 0.7,
         children: List.generate(
-          1,
+          4,
           (index) => const SingleCardWidget(),
         ),
       ),
