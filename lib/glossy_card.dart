@@ -13,6 +13,7 @@ class GlossyCard extends StatelessWidget {
     required this.offset,
     required this.surfaceNormal,
     required this.image,
+    required this.mask,
     Key? key,
   }) : super(key: key);
 
@@ -20,6 +21,7 @@ class GlossyCard extends StatelessWidget {
   final Offset offset;
   final Vector3 surfaceNormal;
   final ui.Image image;
+  final ui.Image mask;
 
   @override
   Widget build(BuildContext context) {
@@ -42,6 +44,7 @@ class GlossyCard extends StatelessWidget {
           lightPos: lightPos,
           surfaceNormal: surfaceNormal,
           viewerPos: viewerPos,
+          mask: mask,
         ),
       ),
     );
@@ -54,8 +57,17 @@ class ShaderPainter extends CustomPainter {
     required this.surfaceNormal,
     required this.viewerPos,
     required this.image,
+    required ui.Image mask,
   }) : imageShader = ImageShader(
           image,
+          // Specify how image repetition is handled for x and y dimension
+          TileMode.decal,
+          TileMode.decal,
+          // Transformation matrix (identity matrix = no transformation)
+          Matrix4.identity().storage,
+        ),
+        maskShader = ImageShader(
+          mask,
           // Specify how image repetition is handled for x and y dimension
           TileMode.decal,
           TileMode.decal,
@@ -68,6 +80,7 @@ class ShaderPainter extends CustomPainter {
   final Vector3 viewerPos;
   final ui.Image image;
   final ImageShader imageShader;
+  final ImageShader maskShader;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -90,7 +103,7 @@ class ShaderPainter extends CustomPainter {
           image.width.toDouble(), image.height.toDouble(),
         ],
       ),
-      samplerUniforms: [imageShader],
+      samplerUniforms: [imageShader, maskShader],
     );
 
     paint.shader = phongShader;

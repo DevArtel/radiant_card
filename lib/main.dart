@@ -4,7 +4,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ohso3d/glossy_card.dart';
-import 'package:vector_math/vector_math.dart' hide Matrix4;
+import 'package:vector_math/vector_math.dart' hide Matrix4, Colors;
 
 late final ui.FragmentProgram phongProgram;
 
@@ -42,15 +42,16 @@ class MyHomePage extends StatelessWidget {
       body: GridView.count(
         physics: const NeverScrollableScrollPhysics(),
         padding: const EdgeInsets.all(16),
-        crossAxisCount: 2,
+        crossAxisCount: 1,
         crossAxisSpacing: 16,
         mainAxisSpacing: 16,
-        childAspectRatio: 0.7,
+        childAspectRatio: 711.0 / 990.0,
         children: List.generate(
-          4,
+          1,
           (index) => const SingleCardWidget(),
         ),
       ),
+      backgroundColor: Colors.white,
     );
   }
 }
@@ -70,12 +71,12 @@ class _SingleCardWidgetState extends State<SingleCardWidget> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: getImage(),
+      future: Future.wait([getImage("assets/images/pikachu.png"), getImage("assets/images/mask_1.png")]),
       builder: (context, snapshot) => !snapshot.hasData
           ? const SizedBox.shrink()
           : LayoutBuilder(
               builder: (context, constraints) {
-                final image = snapshot.data!;
+                final images = snapshot.data!;
 
                 final center = constraints.biggest.center(Offset.zero);
                 final surfaceNormal = Vector3(
@@ -88,7 +89,8 @@ class _SingleCardWidgetState extends State<SingleCardWidget> {
                   child: GlossyCard(
                     offset: center,
                     surfaceNormal: surfaceNormal,
-                    image: image,
+                    image: images[0],
+                    mask: images[1],
                   ),
                   onPanUpdate: (details) {
                     setState(() {
@@ -101,8 +103,8 @@ class _SingleCardWidgetState extends State<SingleCardWidget> {
     );
   }
 
-  Future<ui.Image> getImage() async {
-    final asset = await rootBundle.load("assets/images/pikachu.png");
+  Future<ui.Image> getImage(String file) async {
+    final asset = await rootBundle.load(file);
     final image = await decodeImageFromList(asset.buffer.asUint8List());
     return image;
   }

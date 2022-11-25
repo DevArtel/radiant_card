@@ -26,5 +26,4 @@ flutter:
 
   assets:
     - assets/shaders/phong.sprv
-    - assets/images/card_stub.png
-    - assets/images/pikachu.png
+    - assets/images/
