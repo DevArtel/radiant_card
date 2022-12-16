@@ -25,7 +25,7 @@ class GlossyCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final lightPos = Vector3(0, 0, -0.5);
+    final lightPos = Vector3(0, 0, -1);
 
     final viewerPos = Vector3(0, 0, -1);
 

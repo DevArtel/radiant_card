@@ -21,9 +21,49 @@ layout (location = 12) uniform sampler2D mainTexture; // image texture
 layout (location = 13) uniform sampler2D maskTexture; // mask texture
 
 
+vec3 rgb2hsv(vec3 c) {
+    vec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
+    vec4 p = mix(vec4(c.bg, K.wz), vec4(c.gb, K.xy), step(c.b, c.g));
+    vec4 q = mix(vec4(p.xyw, c.r), vec4(c.r, p.yzx), step(p.x, c.r));
+
+    float d = q.x - min(q.w, q.y);
+    float e = 1.0e-10;
+
+    return vec3(abs(q.z + (q.w - q.y) / (6.0 * d + e)), d / (q.x + e), q.x);
+}
+
+vec3 hsv2rgb(vec3 c) {
+    vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
+    vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
+    return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
+}
+
+//vec3 hsv2rgb(vec3 hsv) {
+//    float c = hsv.z * hsv.y;
+//    float hPrime = hsv.x / 60.0;
+//    float x = c * (1.0 - abs(mod(hPrime, 2.0) - 1.0));
+//    vec3 rgb1;
+//    if (0.0 <= hPrime && hPrime < 1.0) {
+//        rgb1 = vec3(c, x, 0.0);
+//    } else if (1.0 <= hPrime && hPrime < 2.0) {
+//        rgb1 = vec3(x, c, 0.0);
+//    } else if (2.0 <= hPrime && hPrime < 3.0) {
+//        rgb1 = vec3(0.0, c, x);
+//    } else if (3.0 <= hPrime && hPrime < 4.0) {
+//        rgb1 = vec3(0.0, x, c);
+//    } else if (4.0 <= hPrime && hPrime < 5.0) {
+//        rgb1 = vec3(x, 0.0, c);
+//    } else if (5.0 <= hPrime && hPrime < 6.0) {
+//        rgb1 = vec3(c, 0.0, x);
+//    }
+//    float m = hsv.z - c;
+//    return rgb1 + m;
+//}
+
 void main() {
-    vec4 maskTint = vec4(1.0, 1.0, 1.0, 0.5);
-    float maskShineness = 20.0;
+    vec4 maskTint = vec4(1.0, 1.0, 1.0, 1.0);
+    float maskShineness = 10.0;
+    float targetHue = 5.0 / 6.0;
 
     float scaleFactor = min(viewportSize.x, viewportSize.y);
 
@@ -56,9 +96,17 @@ void main() {
         specular = pow(specAngle, shininessVal * (1.0 - maskTextureColor.a) + maskShineness * maskTextureColor.a);
     }
 
+    float aa = maskTextureColor.a * maskTint.a;
+    float aal = aa * (1.0 - lambertian);
+
+    vec3 originalDiffuseColor = mainTextureColor.xyz;
+    vec3 originalDiffuseHsv = rgb2hsv(originalDiffuseColor);
+    float shiftedHue = originalDiffuseHsv.x * (1.0 - aal) + targetHue * aal;
+    vec3 shiftedDiffuseColor = hsv2rgb(vec3(shiftedHue, originalDiffuseHsv.y, originalDiffuseHsv.z));
+
     fragColor = vec4(
         Ka * ambientColor +
-        Kd * lambertian * (mainTextureColor.xyz * (1.0 - maskTextureColor.a * maskTint.a) + maskTint.xyz * maskTextureColor.a * maskTint.a) +
+        Kd * lambertian * shiftedDiffuseColor +
         Ks * specular * specularColor,
         mainTextureColor.a
     );
