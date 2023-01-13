@@ -1,17 +1,21 @@
-name: ohso3d
-description: Just this https://deck-24abcd.netlify.app in flutter
+name: example
+description: A new Flutter project.
 
 publish_to: 'none'
 
 version: 1.0.0+1
 
 environment:
-  sdk: ">=2.18.0 <3.0.0"
-  flutter: ">=3.3.0"
+  sdk: '>=2.18.5 <3.0.0'
 
 dependencies:
   flutter:
     sdk: flutter
+
+  cupertino_icons: ^1.0.2
+
+  ohso3d:
+    path: '../'
 
   vector_math: 2.1.2
 
@@ -25,4 +29,4 @@ flutter:
   uses-material-design: true
 
   assets:
-    - assets/shaders/phong.sprv
+    - assets/images/

@@ -2,12 +2,20 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:ohso3d/main.dart';
+import 'package:flutter/services.dart';
 import 'package:vector_math/vector_math.dart' hide Matrix4;
 
+late final ui.FragmentProgram phongProgram;
+
+// TODO allow client to initialize the shader lazily via a future builder widget
+Future<void> initPhongShader() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  phongProgram = await ui.FragmentProgram.compile(
+      spirv: (await rootBundle.load('packages/ohso3d/assets/shaders/phong.sprv')).buffer,
+  );
+}
 
 //todo card aspect ratio
-//todo cool shit
 class GlossyCard extends StatelessWidget {
   const GlossyCard({
     required this.offset,
