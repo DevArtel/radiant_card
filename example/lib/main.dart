@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:ohso3d/glossy_card.dart';
-import 'package:ohso3d/single_card_widget.dart';
+import 'package:ohso3d/ohso3d.dart';
 
-void main() async {
-  await initPhongShader();
-
+void main() {
   runApp(const MyApp());
 }
 
@@ -38,7 +35,10 @@ class MyHomePage extends StatelessWidget {
         childAspectRatio: 711.0 / 990.0,
         children: List.generate(
           1,
-          (index) => const SingleCardWidget(),
+          (index) => const SingleCardWidget(
+            mainTextureFile: "assets/images/pikachu.png",
+            maskFile: "assets/images/mask_1.png",
+          ),
         ),
       ),
       backgroundColor: Colors.white,
