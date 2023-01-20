@@ -28,7 +28,7 @@ Future<void> _initPhongShader() {
       return Future<void>(() async {
         phongProgram = await ui.FragmentProgram.compile(
           spirv: (await rootBundle.load('packages/ohso3d/assets/shaders/phong.sprv')).buffer,
-        )
+        );
       }).then((value) {
         _shaderState = _ShaderState.initialized;
         _completer.complete();
@@ -58,13 +58,12 @@ class _SingleCardWidgetState extends State<SingleCardWidget> {
       _shaderState == _ShaderState.initialized
           ? buildInnerSingleCardWidget()
           : FutureBuilder<void>(
-          future: _initPhongShader(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState != ConnectionState.done) {
-              return const SizedBox.shrink(); // TODO allow client to customize the behavior
-            }
-            return buildInnerSingleCardWidget();
-          });
+              future: _initPhongShader(),
+              builder: (context, snapshot) =>
+                snapshot.connectionState != ConnectionState.done
+                    ? Image.asset(widget.mainTextureFile)
+                    : buildInnerSingleCardWidget(),
+            );
 
   _InnerSingleCardWidget buildInnerSingleCardWidget() =>
       _InnerSingleCardWidget(
@@ -93,7 +92,7 @@ class _InnerSingleCardWidgetState extends State<_InnerSingleCardWidget> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: Future.wait([getImage(widget.mainTextureFile), getImage(widget.maskFile)]),
+      future: Future.wait([_getImage(widget.mainTextureFile), _getImage(widget.maskFile)]),
       builder: (context, snapshot) =>
       !snapshot.hasData
           ? const SizedBox.shrink()
@@ -125,10 +124,10 @@ class _InnerSingleCardWidgetState extends State<_InnerSingleCardWidget> {
       ),
     );
   }
+}
 
-  Future<ui.Image> getImage(String file) async {
-    final asset = await rootBundle.load(file);
-    final image = await decodeImageFromList(asset.buffer.asUint8List());
-    return image;
-  }
+Future<ui.Image> _getImage(String file) async {
+  final asset = await rootBundle.load(file);
+  final image = await decodeImageFromList(asset.buffer.asUint8List());
+  return image;
 }
