@@ -17,9 +17,14 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class MyHomePage extends StatelessWidget {
+class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
 
+  @override
+  State<MyHomePage> createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -29,12 +34,12 @@ class MyHomePage extends StatelessWidget {
       body: GridView.count(
         physics: const NeverScrollableScrollPhysics(),
         padding: const EdgeInsets.all(16),
-        crossAxisCount: 1,
+        crossAxisCount: 4,
         crossAxisSpacing: 16,
         mainAxisSpacing: 16,
         childAspectRatio: 711.0 / 990.0,
         children: List.generate(
-          1,
+          16,
           (index) => const SingleCardWidget(
             mainTextureFile: "assets/images/pikachu.png",
             maskFile: "assets/images/mask_1.png",
@@ -42,6 +47,11 @@ class MyHomePage extends StatelessWidget {
         ),
       ),
       backgroundColor: Colors.white,
+      floatingActionButton: FloatingActionButton(child: const Icon(Icons.refresh), onPressed: () {
+        setState(() {
+
+        });
+      },),
     );
   }
 }

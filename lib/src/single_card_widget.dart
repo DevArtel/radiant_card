@@ -1,4 +1,4 @@
-
+import 'dart:async';
 import 'dart:math';
 import 'dart:ui' as ui;
 
@@ -10,18 +10,32 @@ import 'glossy_card.dart';
 
 late final ui.FragmentProgram phongProgram;
 
-bool _isInitialized = false;
+enum _ShaderState {
+  notInitialized,
+  initializing,
+  initialized,
+}
 
-// TODO allow client to initialize the shader lazily via a future builder widget
-Future<void> _initPhongShader() async {
-  // WidgetsFlutterBinding.ensureInitialized();
-  if (_isInitialized) {
-    return;
+_ShaderState _shaderState = _ShaderState.notInitialized;
+Completer<void> _completer = Completer();
+
+Future<void> _initPhongShader() {
+  switch (_shaderState) {
+    case _ShaderState.initializing:
+      return _completer.future;
+    case _ShaderState.notInitialized:
+      _shaderState = _ShaderState.initializing;
+      return Future<void>(() async {
+        phongProgram = await ui.FragmentProgram.compile(
+          spirv: (await rootBundle.load('packages/ohso3d/assets/shaders/phong.sprv')).buffer,
+        )
+      }).then((value) {
+        _shaderState = _ShaderState.initialized;
+        _completer.complete();
+      });
+    case _ShaderState.initialized:
+      return Future(() {});
   }
-  phongProgram = await ui.FragmentProgram.compile(
-    spirv: (await rootBundle.load('packages/ohso3d/assets/shaders/phong.sprv')).buffer,
-  );
-  _isInitialized = true;
 }
 
 class SingleCardWidget extends StatefulWidget {
@@ -40,20 +54,23 @@ class SingleCardWidget extends StatefulWidget {
 
 class _SingleCardWidgetState extends State<SingleCardWidget> {
   @override
-  Widget build(BuildContext context) {
-    return FutureBuilder<void> (
-      future: _initPhongShader(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState != ConnectionState.done) {
-          return const SizedBox.shrink(); // TODO allow client to customize the behavior
-        }
-        return _InnerSingleCardWidget(
-          mainTextureFile: widget.mainTextureFile,
-          maskFile: widget.maskFile,
-        );
-      }
-    );
-  }
+  Widget build(BuildContext context) =>
+      _shaderState == _ShaderState.initialized
+          ? buildInnerSingleCardWidget()
+          : FutureBuilder<void>(
+          future: _initPhongShader(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState != ConnectionState.done) {
+              return const SizedBox.shrink(); // TODO allow client to customize the behavior
+            }
+            return buildInnerSingleCardWidget();
+          });
+
+  _InnerSingleCardWidget buildInnerSingleCardWidget() =>
+      _InnerSingleCardWidget(
+        mainTextureFile: widget.mainTextureFile,
+        maskFile: widget.maskFile,
+      );
 }
 
 class _InnerSingleCardWidget extends StatefulWidget {
@@ -77,7 +94,8 @@ class _InnerSingleCardWidgetState extends State<_InnerSingleCardWidget> {
   Widget build(BuildContext context) {
     return FutureBuilder(
       future: Future.wait([getImage(widget.mainTextureFile), getImage(widget.maskFile)]),
-      builder: (context, snapshot) => !snapshot.hasData
+      builder: (context, snapshot) =>
+      !snapshot.hasData
           ? const SizedBox.shrink()
           : LayoutBuilder(
         builder: (context, constraints) {
