@@ -2,23 +2,23 @@
 
 precision mediump float;
 
-layout (location = 0) out vec4 fragColor;
+out vec4 fragColor;
 
-layout (location = 0) uniform float Ka;   // Ambient reflection coefficient
-layout (location = 1) uniform float Kd;   // Diffuse reflection coefficient
-layout (location = 2) uniform float Ks;   // Specular reflection coefficient
-layout (location = 3) uniform float shininessVal; // Shininess
-layout (location = 4) uniform vec3 ambientColor; // Material color
-layout (location = 5) uniform vec3 diffuseColor; // Material color - UNUSED
-layout (location = 6) uniform vec3 specularColor; // Material color
-layout (location = 7) uniform vec3 lightPos; // Light position
-layout (location = 8) uniform vec2 viewportSize; // viewport size
-layout (location = 9) uniform vec3 surfaceNormal; // surface normal
-layout (location = 10) uniform vec3 viewerPos; // viewer position
+uniform float Ka;   // Ambient reflection coefficient
+uniform float Kd;   // Diffuse reflection coefficient
+uniform float Ks;   // Specular reflection coefficient
+uniform float shininessVal; // Shininess
+uniform vec3 ambientColor; // Material color
+uniform vec3 diffuseColor; // Material color - UNUSED
+uniform vec3 specularColor; // Material color
+uniform vec3 lightPos; // Light position
+uniform vec2 viewportSize; // viewport size
+uniform vec3 surfaceNormal; // surface normal
+uniform vec3 viewerPos; // viewer position
 
-layout (location = 11) uniform vec2 textureSize2;
-layout (location = 12) uniform sampler2D mainTexture; // image texture
-layout (location = 13) uniform sampler2D maskTexture; // mask texture
+uniform vec2 textureSize2;
+uniform sampler2D mainTexture; // image texture
+uniform sampler2D maskTexture; // mask texture
 
 
 vec3 rgb2hsv(vec3 c) {
@@ -37,28 +37,6 @@ vec3 hsv2rgb(vec3 c) {
     vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
     return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
 }
-
-//vec3 hsv2rgb(vec3 hsv) {
-//    float c = hsv.z * hsv.y;
-//    float hPrime = hsv.x / 60.0;
-//    float x = c * (1.0 - abs(mod(hPrime, 2.0) - 1.0));
-//    vec3 rgb1;
-//    if (0.0 <= hPrime && hPrime < 1.0) {
-//        rgb1 = vec3(c, x, 0.0);
-//    } else if (1.0 <= hPrime && hPrime < 2.0) {
-//        rgb1 = vec3(x, c, 0.0);
-//    } else if (2.0 <= hPrime && hPrime < 3.0) {
-//        rgb1 = vec3(0.0, c, x);
-//    } else if (3.0 <= hPrime && hPrime < 4.0) {
-//        rgb1 = vec3(0.0, x, c);
-//    } else if (4.0 <= hPrime && hPrime < 5.0) {
-//        rgb1 = vec3(x, 0.0, c);
-//    } else if (5.0 <= hPrime && hPrime < 6.0) {
-//        rgb1 = vec3(c, 0.0, x);
-//    }
-//    float m = hsv.z - c;
-//    return rgb1 + m;
-//}
 
 void main() {
     vec4 maskTint = vec4(1.0, 1.0, 1.0, 1.0);
