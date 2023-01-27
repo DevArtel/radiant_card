@@ -9,14 +9,12 @@ uniform float Kd;   // Diffuse reflection coefficient
 uniform float Ks;   // Specular reflection coefficient
 uniform float shininessVal; // Shininess
 uniform vec3 ambientColor; // Material color
-uniform vec3 diffuseColor; // Material color - UNUSED
 uniform vec3 specularColor; // Material color
 uniform vec3 lightPos; // Light position
 uniform vec2 viewportSize; // viewport size
 uniform vec3 surfaceNormal; // surface normal
 uniform vec3 viewerPos; // viewer position
 
-uniform vec2 textureSize2;
 uniform sampler2D mainTexture; // image texture
 uniform sampler2D maskTexture; // mask texture
 

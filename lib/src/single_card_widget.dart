@@ -26,9 +26,7 @@ Future<void> _initPhongShader() {
     case _ShaderState.notInitialized:
       _shaderState = _ShaderState.initializing;
       return Future<void>(() async {
-        phongProgram = await ui.FragmentProgram.compile(
-          spirv: (await rootBundle.load('packages/ohso3d/assets/shaders/phong.sprv')).buffer,
-        );
+        phongProgram = await ui.FragmentProgram.fromAsset('packages/ohso3d/shaders/phong.glsl');
       }).then((value) {
         _shaderState = _ShaderState.initialized;
         _completer.complete();
@@ -54,19 +52,16 @@ class SingleCardWidget extends StatefulWidget {
 
 class _SingleCardWidgetState extends State<SingleCardWidget> {
   @override
-  Widget build(BuildContext context) =>
-      _shaderState == _ShaderState.initialized
-          ? buildInnerSingleCardWidget()
-          : FutureBuilder<void>(
-              future: _initPhongShader(),
-              builder: (context, snapshot) =>
-                snapshot.connectionState != ConnectionState.done
-                    ? Image.asset(widget.mainTextureFile)
-                    : buildInnerSingleCardWidget(),
-            );
+  Widget build(BuildContext context) => _shaderState == _ShaderState.initialized
+      ? buildInnerSingleCardWidget()
+      : FutureBuilder<void>(
+          future: _initPhongShader(),
+          builder: (context, snapshot) => snapshot.connectionState != ConnectionState.done
+              ? Image.asset(widget.mainTextureFile)
+              : buildInnerSingleCardWidget(),
+        );
 
-  _InnerSingleCardWidget buildInnerSingleCardWidget() =>
-      _InnerSingleCardWidget(
+  _InnerSingleCardWidget buildInnerSingleCardWidget() => _InnerSingleCardWidget(
         mainTextureFile: widget.mainTextureFile,
         maskFile: widget.maskFile,
       );
@@ -93,35 +88,34 @@ class _InnerSingleCardWidgetState extends State<_InnerSingleCardWidget> {
   Widget build(BuildContext context) {
     return FutureBuilder(
       future: Future.wait([_getImage(widget.mainTextureFile), _getImage(widget.maskFile)]),
-      builder: (context, snapshot) =>
-      !snapshot.hasData
+      builder: (context, snapshot) => !snapshot.hasData
           ? const SizedBox.shrink()
           : LayoutBuilder(
-        builder: (context, constraints) {
-          final images = snapshot.data!;
+              builder: (context, constraints) {
+                final images = snapshot.data!;
 
-          final center = constraints.biggest.center(Offset.zero);
-          final surfaceNormal = Vector3(
-            -_pointerPosition.dx,
-            -_pointerPosition.dy,
-            -max(center.dx, center.dy),
-          );
+                final center = constraints.biggest.center(Offset.zero);
+                final surfaceNormal = Vector3(
+                  -_pointerPosition.dx,
+                  -_pointerPosition.dy,
+                  -max(center.dx, center.dy),
+                );
 
-          return GestureDetector(
-            child: GlossyCard(
-              offset: center,
-              surfaceNormal: surfaceNormal,
-              image: images[0],
-              mask: images[1],
+                return GestureDetector(
+                  child: GlossyCard(
+                    offset: center,
+                    surfaceNormal: surfaceNormal,
+                    image: images[0],
+                    mask: images[1],
+                  ),
+                  onPanUpdate: (details) {
+                    setState(() {
+                      _pointerPosition = details.localPosition - center;
+                    });
+                  },
+                );
+              },
             ),
-            onPanUpdate: (details) {
-              setState(() {
-                _pointerPosition = details.localPosition - center;
-              });
-            },
-          );
-        },
-      ),
     );
   }
 }
