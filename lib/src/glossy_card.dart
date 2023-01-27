@@ -1,22 +1,18 @@
 import 'dart:ui' as ui;
 
-// ignore: depend_on_referenced_packages
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:ohso3d/ohso3d.dart';
 import 'package:vector_math/vector_math.dart' hide Matrix4;
 
-// 1. General case, with normal
-// 2. Animation depends on angle with gesture detector
-// 3. Light depends on card location on the screen
-// 4. LightAnimator
-//todo card aspect ratio
+final _defaultConfig = DefaultShaderConfig();
+
 class GlossyCard extends StatelessWidget {
   const GlossyCard({
     required this.offset,
     required this.surfaceNormal,
     required this.image,
     required this.mask,
+    this.config,
     Key? key,
   }) : super(key: key);
 
@@ -25,6 +21,7 @@ class GlossyCard extends StatelessWidget {
   final Vector3 surfaceNormal;
   final ui.Image image;
   final ui.Image mask;
+  final ShaderConfig? config;
 
   @override
   Widget build(BuildContext context) {
@@ -42,49 +39,34 @@ class GlossyCard extends StatelessWidget {
         ..rotateX(angleX)
         ..rotateY(angleY),
       child: CustomPaint(
-        painter: ShaderPainter(
-          image: image,
-          lightPos: lightPos,
-          surfaceNormal: surfaceNormal,
-          viewerPos: viewerPos,
-          mask: mask,
-        ),
+        painter: _ShaderPainter(
+            image: image,
+            lightPos: lightPos,
+            surfaceNormal: surfaceNormal,
+            viewerPos: viewerPos,
+            mask: mask,
+            config: config ?? _defaultConfig),
       ),
     );
   }
 }
 
-class ShaderPainter extends CustomPainter {
-  ShaderPainter({
+class _ShaderPainter extends CustomPainter {
+  _ShaderPainter({
     required this.lightPos,
     required this.surfaceNormal,
     required this.viewerPos,
     required this.image,
     required this.mask,
-  })  : imageShader = ImageShader(
-          image,
-          // Specify how image repetition is handled for x and y dimension
-          TileMode.decal,
-          TileMode.decal,
-          // Transformation matrix (identity matrix = no transformation)
-          Matrix4.identity().storage,
-        ),
-        maskShader = ImageShader(
-          mask,
-          // Specify how image repetition is handled for x and y dimension
-          TileMode.decal,
-          TileMode.decal,
-          // Transformation matrix (identity matrix = no transformation)
-          Matrix4.identity().storage,
-        );
+    required this.config,
+  });
 
   final Vector3 lightPos;
   final Vector3 surfaceNormal;
   final Vector3 viewerPos;
   final ui.Image image;
   final ui.Image mask;
-  final ImageShader imageShader;
-  final ImageShader maskShader;
+  final ShaderConfig config;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -92,21 +74,22 @@ class ShaderPainter extends CustomPainter {
 
     final phongShader = phongProgram.fragmentShader();
 
-    final floatValues = <double>[
-      1, // Ka
-      1, // Kd
-      1, // Ks
-      80, // shininessVal
-      0, 0, 0, // ambientColor
-      1, 1, 1, // specularColor
-      lightPos.x, lightPos.y, lightPos.z, // lightPos
-      size.width, size.height, // viewportSize
-      surfaceNormal.x, surfaceNormal.y, surfaceNormal.z, // surfaceNormal
-      viewerPos.x, viewerPos.y, viewerPos.z,
-    ];
-    floatValues.forEachIndexed(
-      (index, value) => phongShader.setFloat(index, value),
-    );
+    config.populate(phongShader);
+
+    phongShader.setFloat(10, lightPos.x);
+    phongShader.setFloat(11, lightPos.y);
+    phongShader.setFloat(12, lightPos.z);
+
+    phongShader.setFloat(13, size.width);
+    phongShader.setFloat(14, size.height);
+
+    phongShader.setFloat(15, surfaceNormal.x);
+    phongShader.setFloat(16, surfaceNormal.y);
+    phongShader.setFloat(17, surfaceNormal.z);
+
+    phongShader.setFloat(18, viewerPos.x);
+    phongShader.setFloat(19, viewerPos.y);
+    phongShader.setFloat(20, viewerPos.z);
 
     phongShader.setImageSampler(0, image);
     phongShader.setImageSampler(1, mask);
@@ -117,4 +100,21 @@ class ShaderPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
+}
+
+extension PopulateShaderExt on ShaderConfig {
+  void populate(ui.FragmentShader phongShader) {
+    phongShader.setFloat(0, ambientCoefficient);
+    phongShader.setFloat(1, diffuseCoefficient);
+    phongShader.setFloat(2, specularCoefficient);
+    phongShader.setFloat(3, shininess);
+
+    phongShader.setFloat(4, ambientColor.x);
+    phongShader.setFloat(5, ambientColor.y);
+    phongShader.setFloat(6, ambientColor.z);
+
+    phongShader.setFloat(7, specularColor.x);
+    phongShader.setFloat(8, specularColor.y);
+    phongShader.setFloat(9, specularColor.z);
+  }
 }

@@ -36,6 +36,15 @@ Future<void> _initPhongShader() {
   }
 }
 
+//todo  1. General case, with normal
+//todo  2. Animation depends on angle with gesture detector
+//todo  3. Light depends on card location on the screen
+//todo  4. LightAnimator
+//todo card aspect ratio
+//todo Enable library to work with plain Widget instead of ui.Image
+//todo Consistent naming
+//todo remove GlossyCard, only one functional widget is necessary
+//todo publish
 class SingleCardWidget extends StatefulWidget {
   const SingleCardWidget({
     Key? key,
