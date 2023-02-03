@@ -40,7 +40,7 @@ class _MyHomePageState extends State<MyHomePage> {
         childAspectRatio: 711.0 / 990.0,
         children: List.generate(
           1,
-          (index) => const RotatablePhongShadedCard(
+          (index) => const RotatableShadedCard(
             mainTextureFile: "assets/images/pikachu.png",
             maskFile: "assets/images/mask_1.png",
           ),

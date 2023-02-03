@@ -1,122 +1,74 @@
-import 'dart:ui' as ui;
-
 import 'package:flutter/material.dart';
 import 'package:ohso3d/ohso3d.dart';
-import 'package:vector_math/vector_math.dart' hide Matrix4;
+import 'package:vector_math/vector_math.dart';
 
-// todo move configuration outside library internals
-final _defaultConfig = DefaultShaderConfig();
+import 'image_context_widget.dart';
+import 'orientation_controller.dart';
+import 'oriented_card.dart';
+import 'shader_context_widget.dart';
 
-class ShadedCard extends StatelessWidget {
-  const ShadedCard({
-    required this.surfaceNormal,
-    required this.image,
-    required this.mask,
-    required this.shader,
-    this.config,
-    Key? key,
-  }) : super(key: key);
-
-  final Vector3 surfaceNormal;
-  final ui.Image image;
-  final ui.Image mask;
+// TODO Fix flickering on rotation start
+// TODO Animation depends on phone orientation
+// TODO Global illumination
+// TODO LightPosAnimator
+// TODO Customizable card aspect ratio
+// TODO Enable library to work with plain Widget instead of texture filenames
+// TODO Publish
+class RotatableShadedCard extends StatelessWidget {
+  final String mainTextureFile, maskFile;
   final ShaderConfig? config;
-  final ui.FragmentProgram shader;
 
-  @override
-  Widget build(BuildContext context) {
-    final lightPos = Vector3(0, 0, -1);
-
-    final viewerPos = Vector3(0, 0, -1);
-
-    final angleX = Vector3(0, surfaceNormal.y, surfaceNormal.z).angleTo(viewerPos) * surfaceNormal.y.sign;
-    final angleY = Vector3(surfaceNormal.x, 0, surfaceNormal.z).angleTo(viewerPos) * -surfaceNormal.x.sign;
-
-    return Transform(
-      alignment: FractionalOffset.center,
-      transform: Matrix4.identity()
-        ..setEntry(3, 2, 0.001)
-        ..rotateX(angleX)
-        ..rotateY(angleY),
-      child: CustomPaint(
-        painter: _ShaderPainter(
-          image: image,
-          lightPos: lightPos,
-          surfaceNormal: surfaceNormal,
-          viewerPos: viewerPos,
-          mask: mask,
-          config: config ?? _defaultConfig,
-          shader: shader,
-        ),
-      ),
-    );
-  }
-}
-
-class _ShaderPainter extends CustomPainter {
-  _ShaderPainter({
-    required this.lightPos,
-    required this.surfaceNormal,
-    required this.viewerPos,
-    required this.image,
-    required this.mask,
-    required this.config,
-    required this.shader,
+  const RotatableShadedCard({
+    super.key,
+    required this.mainTextureFile,
+    required this.maskFile,
+    this.config,
   });
 
-  final Vector3 lightPos;
-  final Vector3 surfaceNormal;
-  final Vector3 viewerPos;
-  final ui.Image image;
-  final ui.Image mask;
-  final ShaderConfig config;
-  final ui.FragmentProgram shader;
-
   @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint();
-
-    final fragmentShader = shader.fragmentShader();
-
-    config.populate(fragmentShader);
-
-    // TODO move to the top where shader is specified
-    fragmentShader.setFloat(10, lightPos.x);
-    fragmentShader.setFloat(11, lightPos.y);
-    fragmentShader.setFloat(12, lightPos.z);
-    fragmentShader.setFloat(13, size.width);
-    fragmentShader.setFloat(14, size.height);
-    fragmentShader.setFloat(15, surfaceNormal.x);
-    fragmentShader.setFloat(16, surfaceNormal.y);
-    fragmentShader.setFloat(17, surfaceNormal.z);
-    fragmentShader.setFloat(18, viewerPos.x);
-    fragmentShader.setFloat(19, viewerPos.y);
-    fragmentShader.setFloat(20, viewerPos.z);
-    fragmentShader.setImageSampler(0, image);
-    fragmentShader.setImageSampler(1, mask);
-
-    paint.shader = fragmentShader;
-    canvas.drawRect(Rect.fromLTRB(0, 0, size.width, size.height), paint);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
+  Widget build(BuildContext context) => OrientationController(
+        builder: (context, normal) => ShadedOrientedCard(
+          mainTextureFile: mainTextureFile,
+          maskFile: maskFile,
+          normal: normal,
+          config: config,
+        ),
+      );
 }
 
-// TODO move to the top where shader is specified
-extension PopulateShaderExt on ShaderConfig {
-  void populate(ui.FragmentShader shader) {
-    shader.setFloat(0, ambientCoefficient);
-    shader.setFloat(1, diffuseCoefficient);
-    shader.setFloat(2, specularCoefficient);
-    shader.setFloat(3, shininess);
+class ShadedOrientedCard extends StatelessWidget {
+  final Vector3 normal;
+  final String mainTextureFile, maskFile;
+  final ShaderConfig config;
+  final Vector3 lightPos;
+  final Vector3 viewerPos;
 
-    shader.setFloat(4, ambientColor.x);
-    shader.setFloat(5, ambientColor.y);
-    shader.setFloat(6, ambientColor.z);
+  ShadedOrientedCard({
+    super.key,
+    required this.mainTextureFile,
+    required this.maskFile,
+    ShaderConfig? config,
+    Vector3? normal,
+    Vector3? lightPos,
+    Vector3? viewerPos,
+  })  : config = config ?? DefaultPhongShaderConfig(),
+        normal = normal ?? Vector3(0, 0, -1),
+        lightPos = lightPos ?? Vector3(0, 0, -1),
+        viewerPos = viewerPos ?? Vector3(0, 0, -1);
 
-    shader.setFloat(7, specularColor.x);
-    shader.setFloat(8, specularColor.y);
-    shader.setFloat(9, specularColor.z);
-  }
+  @override
+  Widget build(BuildContext context) => ShaderContextWidget(
+        shaderAsset: config.shaderAsset,
+        builder: (context, shader) => ImageContextWidget(
+          imageFiles: [mainTextureFile, maskFile],
+          builder: (context, images) => OrientedCard(
+            normal: normal,
+            shader: shader,
+            viewerPos: viewerPos,
+            configurator: (shader, size) => config.apply(shader, lightPos, size, normal, viewerPos, images),
+          ),
+          emptyBuilder: (context) => Image.asset(mainTextureFile),
+        ),
+        emptyBuilder: (context) => Image.asset(mainTextureFile),
+      );
 }
