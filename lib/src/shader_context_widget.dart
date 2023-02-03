@@ -3,54 +3,55 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 
-late final ui.FragmentProgram _shader;
+late final ui.FragmentProgram _fragmentProgram;
 
-enum _ShaderState {
+enum _FragmentProgramState {
   notInitialized,
   initializing,
   initialized,
 }
 
-_ShaderState _shaderState = _ShaderState.notInitialized;
+_FragmentProgramState _fragmentProgramState = _FragmentProgramState.notInitialized;
 Completer<void> _completer = Completer();
 
-// TODO multiple shader support
-Future<void> _initShader(String shaderAsset) {
-  switch (_shaderState) {
-    case _ShaderState.initializing:
+// TODO multiple fragment programs support
+Future<void> _initFragmentProgram(String fragmentProgramAsset) {
+  switch (_fragmentProgramState) {
+    case _FragmentProgramState.initializing:
       return _completer.future;
-    case _ShaderState.notInitialized:
-      _shaderState = _ShaderState.initializing;
+    case _FragmentProgramState.notInitialized:
+      _fragmentProgramState = _FragmentProgramState.initializing;
       return Future<void>(() async {
-        _shader = await ui.FragmentProgram.fromAsset(shaderAsset);
+        _fragmentProgram = await ui.FragmentProgram.fromAsset(fragmentProgramAsset);
       }).then((value) {
-        _shaderState = _ShaderState.initialized;
+        _fragmentProgramState = _FragmentProgramState.initialized;
         _completer.complete();
       });
-    case _ShaderState.initialized:
+    case _FragmentProgramState.initialized:
       return Future(() {});
   }
 }
 
-// TODO shader list in parameters
-class ShaderContextWidget extends StatelessWidget {
+// TODO program asset list in parameters
+class FragmentProgramContextWidget extends StatelessWidget {
   final Function(BuildContext, ui.FragmentProgram) builder;
   final WidgetBuilder emptyBuilder;
-  final String shaderAsset;
+  final String fragmentProgramAsset;
 
-  const ShaderContextWidget({
+  const FragmentProgramContextWidget({
     Key? key,
     required this.builder,
     required this.emptyBuilder,
-    required this.shaderAsset,
+    required this.fragmentProgramAsset,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) => _shaderState == _ShaderState.initialized
-      ? builder(context, _shader)
+  Widget build(BuildContext context) => _fragmentProgramState == _FragmentProgramState.initialized
+      ? builder(context, _fragmentProgram)
       : FutureBuilder<void>(
-          future: _initShader(shaderAsset),
-          builder: (context, snapshot) =>
-              snapshot.connectionState == ConnectionState.done ? builder(context, _shader) : emptyBuilder(context),
+          future: _initFragmentProgram(fragmentProgramAsset),
+          builder: (context, snapshot) => snapshot.connectionState == ConnectionState.done
+              ? builder(context, _fragmentProgram)
+              : emptyBuilder(context),
         );
 }

@@ -57,13 +57,13 @@ class ShadedCard extends StatelessWidget {
         viewerPos = viewerPos ?? Vector3(0, 0, -1);
 
   @override
-  Widget build(BuildContext context) => ShaderContextWidget(
-        shaderAsset: config.shaderAsset,
-        builder: (context, shader) => ImageContextWidget(
+  Widget build(BuildContext context) => FragmentProgramContextWidget(
+        fragmentProgramAsset: config.fragmentProgramAsset,
+        builder: (context, fragmentProgram) => ImageContextWidget(
           imageFiles: [mainTextureFile, maskFile],
           builder: (context, images) => OrientedCard(
             normal: normal,
-            shader: shader,
+            fragmentProgram: fragmentProgram,
             viewerPos: viewerPos,
             configurator: (shader, size) => config.apply(shader, lightPos, size, normal, viewerPos, images),
           ),

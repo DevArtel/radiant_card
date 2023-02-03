@@ -72,9 +72,9 @@ class PhongShaderConfig extends ShaderConfig {
 }
 
 abstract class ShaderConfig {
-  final String shaderAsset;
+  final String fragmentProgramAsset;
 
-  ShaderConfig(this.shaderAsset);
+  ShaderConfig(this.fragmentProgramAsset);
 
   void apply(FragmentShader shader, Vector3 lightPos, Size size, Vector3 normal, Vector3 viewerPos, List<Image> images);
 }

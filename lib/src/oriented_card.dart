@@ -6,7 +6,7 @@ import 'package:vector_math/vector_math.dart' hide Matrix4;
 class OrientedCard extends StatelessWidget {
   const OrientedCard({
     required this.normal,
-    required this.shader,
+    required this.fragmentProgram,
     required this.configurator,
     required this.viewerPos,
     Key? key,
@@ -14,7 +14,7 @@ class OrientedCard extends StatelessWidget {
 
   final Vector3 normal;
   final Function(ui.FragmentShader, Size) configurator;
-  final ui.FragmentProgram shader;
+  final ui.FragmentProgram fragmentProgram;
   final Vector3 viewerPos;
 
   @override
@@ -30,7 +30,7 @@ class OrientedCard extends StatelessWidget {
         ..rotateY(angleY),
       child: CustomPaint(
         painter: _ShaderPainter(
-          shader: shader,
+          fragmentProgram: fragmentProgram,
           configurator: configurator,
         ),
       ),
@@ -40,17 +40,17 @@ class OrientedCard extends StatelessWidget {
 
 class _ShaderPainter extends CustomPainter {
   _ShaderPainter({
-    required this.shader,
+    required this.fragmentProgram,
     required this.configurator,
   });
 
-  final ui.FragmentProgram shader;
+  final ui.FragmentProgram fragmentProgram;
   final Function(ui.FragmentShader, Size) configurator;
 
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint();
-    final fragmentShader = shader.fragmentShader();
+    final fragmentShader = fragmentProgram.fragmentShader();
     configurator(fragmentShader, size);
     paint.shader = fragmentShader;
     canvas.drawRect(Rect.fromLTRB(0, 0, size.width, size.height), paint);
