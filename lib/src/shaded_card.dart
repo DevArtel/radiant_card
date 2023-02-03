@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:ohso3d/ohso3d.dart';
 import 'package:vector_math/vector_math.dart';
 
 import 'image_context_widget.dart';
 import 'orientation_controller.dart';
 import 'oriented_card.dart';
+import 'shader_config.dart';
 import 'shader_context_widget.dart';
 
 // TODO Fix flickering on rotation start
