@@ -7,6 +7,7 @@ import 'oriented_card.dart';
 import 'shader_config.dart';
 import 'shader_context_widget.dart';
 
+// TODO viewerPos is always (0, 0, -1) in oriented card or replace them with angles in constructor parameters?
 // TODO Fix flickering on rotation start
 // TODO Animation depends on phone orientation
 // TODO Global illumination
