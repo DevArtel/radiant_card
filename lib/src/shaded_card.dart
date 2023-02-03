@@ -27,7 +27,7 @@ class RotatableShadedCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => OrientationController(
-        builder: (context, normal) => ShadedOrientedCard(
+        builder: (context, normal) => ShadedCard(
           mainTextureFile: mainTextureFile,
           maskFile: maskFile,
           normal: normal,
@@ -36,14 +36,14 @@ class RotatableShadedCard extends StatelessWidget {
       );
 }
 
-class ShadedOrientedCard extends StatelessWidget {
+class ShadedCard extends StatelessWidget {
   final Vector3 normal;
   final String mainTextureFile, maskFile;
   final ShaderConfig config;
   final Vector3 lightPos;
   final Vector3 viewerPos;
 
-  ShadedOrientedCard({
+  ShadedCard({
     super.key,
     required this.mainTextureFile,
     required this.maskFile,
