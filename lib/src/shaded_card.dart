@@ -6,22 +6,21 @@ import 'package:vector_math/vector_math.dart' hide Matrix4;
 
 final _defaultConfig = DefaultShaderConfig();
 
-class GlossyCard extends StatelessWidget {
-  const GlossyCard({
-    required this.offset,
+class ShadedCard extends StatelessWidget {
+  const ShadedCard({
     required this.surfaceNormal,
     required this.image,
     required this.mask,
+    required this.phongProgram,
     this.config,
     Key? key,
   }) : super(key: key);
 
-  /// Offset relative to parent center
-  final Offset offset;
   final Vector3 surfaceNormal;
   final ui.Image image;
   final ui.Image mask;
   final ShaderConfig? config;
+  final ui.FragmentProgram phongProgram;
 
   @override
   Widget build(BuildContext context) {
@@ -40,12 +39,14 @@ class GlossyCard extends StatelessWidget {
         ..rotateY(angleY),
       child: CustomPaint(
         painter: _ShaderPainter(
-            image: image,
-            lightPos: lightPos,
-            surfaceNormal: surfaceNormal,
-            viewerPos: viewerPos,
-            mask: mask,
-            config: config ?? _defaultConfig),
+          image: image,
+          lightPos: lightPos,
+          surfaceNormal: surfaceNormal,
+          viewerPos: viewerPos,
+          mask: mask,
+          config: config ?? _defaultConfig,
+          phongProgram: phongProgram,
+        ),
       ),
     );
   }
@@ -59,6 +60,7 @@ class _ShaderPainter extends CustomPainter {
     required this.image,
     required this.mask,
     required this.config,
+    required this.phongProgram,
   });
 
   final Vector3 lightPos;
@@ -67,6 +69,7 @@ class _ShaderPainter extends CustomPainter {
   final ui.Image image;
   final ui.Image mask;
   final ShaderConfig config;
+  final ui.FragmentProgram phongProgram;
 
   @override
   void paint(Canvas canvas, Size size) {

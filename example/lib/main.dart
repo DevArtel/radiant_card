@@ -34,24 +34,25 @@ class _MyHomePageState extends State<MyHomePage> {
       body: GridView.count(
         physics: const NeverScrollableScrollPhysics(),
         padding: const EdgeInsets.all(16),
-        crossAxisCount: 4,
+        crossAxisCount: 1,
         crossAxisSpacing: 16,
         mainAxisSpacing: 16,
         childAspectRatio: 711.0 / 990.0,
         children: List.generate(
-          16,
-          (index) => const SingleCardWidget(
+          1,
+          (index) => const RotatablePhongShadedCard(
             mainTextureFile: "assets/images/pikachu.png",
             maskFile: "assets/images/mask_1.png",
           ),
         ),
       ),
       backgroundColor: Colors.white,
-      floatingActionButton: FloatingActionButton(child: const Icon(Icons.refresh), onPressed: () {
-        setState(() {
-
-        });
-      },),
+      floatingActionButton: FloatingActionButton(
+        child: const Icon(Icons.refresh),
+        onPressed: () {
+          setState(() {});
+        },
+      ),
     );
   }
 }

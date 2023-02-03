@@ -1,2 +1,2 @@
-export 'src/configs/shader_config.dart';
-export 'src/single_card_widget.dart';
+export 'src/phong_shaded_card.dart';
+export 'src/shader_config.dart';
