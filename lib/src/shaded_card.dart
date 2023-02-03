@@ -16,13 +16,13 @@ import 'shader_context_widget.dart';
 // TODO Publish
 class RotatableShadedCard extends StatelessWidget {
   final String mainTextureFile, maskFile;
-  final ShaderConfig? config;
+  final ShaderConfig? shaderConfig;
 
   const RotatableShadedCard({
     super.key,
     required this.mainTextureFile,
     required this.maskFile,
-    this.config,
+    this.shaderConfig,
   });
 
   @override
@@ -31,7 +31,7 @@ class RotatableShadedCard extends StatelessWidget {
           mainTextureFile: mainTextureFile,
           maskFile: maskFile,
           normal: normal,
-          config: config,
+          shaderConfig: shaderConfig,
         ),
       );
 }
@@ -39,7 +39,7 @@ class RotatableShadedCard extends StatelessWidget {
 class ShadedCard extends StatelessWidget {
   final Vector3 normal;
   final String mainTextureFile, maskFile;
-  final ShaderConfig config;
+  final ShaderConfig shaderConfig;
   final Vector3 lightPos;
   final Vector3 viewerPos;
 
@@ -47,25 +47,25 @@ class ShadedCard extends StatelessWidget {
     super.key,
     required this.mainTextureFile,
     required this.maskFile,
-    ShaderConfig? config,
+    ShaderConfig? shaderConfig,
     Vector3? normal,
     Vector3? lightPos,
     Vector3? viewerPos,
-  })  : config = config ?? DefaultPhongShaderConfig(),
+  })  : shaderConfig = shaderConfig ?? DefaultPhongShaderConfig(),
         normal = normal ?? Vector3(0, 0, -1),
         lightPos = lightPos ?? Vector3(0, 0, -1),
         viewerPos = viewerPos ?? Vector3(0, 0, -1);
 
   @override
   Widget build(BuildContext context) => FragmentProgramContextWidget(
-        fragmentProgramAsset: config.fragmentProgramAsset,
+        fragmentProgramAsset: shaderConfig.fragmentProgramAsset,
         builder: (context, fragmentProgram) => ImageContextWidget(
           imageFiles: [mainTextureFile, maskFile],
           builder: (context, images) => OrientedCard(
             normal: normal,
             fragmentProgram: fragmentProgram,
             viewerPos: viewerPos,
-            configurator: (shader, size) => config.apply(shader, lightPos, size, normal, viewerPos, images),
+            configurator: (shader, size) => shaderConfig.apply(shader, lightPos, size, normal, viewerPos, images),
           ),
           emptyBuilder: (context) => Image.asset(mainTextureFile),
         ),
