@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:ohso3d/ohso3d.dart';
 import 'package:vector_math/vector_math.dart' hide Matrix4;
 
+// todo move configuration outside library internals
 final _defaultConfig = DefaultShaderConfig();
 
 class ShadedCard extends StatelessWidget {
@@ -11,7 +12,7 @@ class ShadedCard extends StatelessWidget {
     required this.surfaceNormal,
     required this.image,
     required this.mask,
-    required this.phongProgram,
+    required this.shader,
     this.config,
     Key? key,
   }) : super(key: key);
@@ -20,7 +21,7 @@ class ShadedCard extends StatelessWidget {
   final ui.Image image;
   final ui.Image mask;
   final ShaderConfig? config;
-  final ui.FragmentProgram phongProgram;
+  final ui.FragmentProgram shader;
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +46,7 @@ class ShadedCard extends StatelessWidget {
           viewerPos: viewerPos,
           mask: mask,
           config: config ?? _defaultConfig,
-          phongProgram: phongProgram,
+          shader: shader,
         ),
       ),
     );
@@ -60,7 +61,7 @@ class _ShaderPainter extends CustomPainter {
     required this.image,
     required this.mask,
     required this.config,
-    required this.phongProgram,
+    required this.shader,
   });
 
   final Vector3 lightPos;
@@ -69,35 +70,32 @@ class _ShaderPainter extends CustomPainter {
   final ui.Image image;
   final ui.Image mask;
   final ShaderConfig config;
-  final ui.FragmentProgram phongProgram;
+  final ui.FragmentProgram shader;
 
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint();
 
-    final phongShader = phongProgram.fragmentShader();
+    final fragmentShader = shader.fragmentShader();
 
-    config.populate(phongShader);
+    config.populate(fragmentShader);
 
-    phongShader.setFloat(10, lightPos.x);
-    phongShader.setFloat(11, lightPos.y);
-    phongShader.setFloat(12, lightPos.z);
+    // TODO move to the top where shader is specified
+    fragmentShader.setFloat(10, lightPos.x);
+    fragmentShader.setFloat(11, lightPos.y);
+    fragmentShader.setFloat(12, lightPos.z);
+    fragmentShader.setFloat(13, size.width);
+    fragmentShader.setFloat(14, size.height);
+    fragmentShader.setFloat(15, surfaceNormal.x);
+    fragmentShader.setFloat(16, surfaceNormal.y);
+    fragmentShader.setFloat(17, surfaceNormal.z);
+    fragmentShader.setFloat(18, viewerPos.x);
+    fragmentShader.setFloat(19, viewerPos.y);
+    fragmentShader.setFloat(20, viewerPos.z);
+    fragmentShader.setImageSampler(0, image);
+    fragmentShader.setImageSampler(1, mask);
 
-    phongShader.setFloat(13, size.width);
-    phongShader.setFloat(14, size.height);
-
-    phongShader.setFloat(15, surfaceNormal.x);
-    phongShader.setFloat(16, surfaceNormal.y);
-    phongShader.setFloat(17, surfaceNormal.z);
-
-    phongShader.setFloat(18, viewerPos.x);
-    phongShader.setFloat(19, viewerPos.y);
-    phongShader.setFloat(20, viewerPos.z);
-
-    phongShader.setImageSampler(0, image);
-    phongShader.setImageSampler(1, mask);
-
-    paint.shader = phongShader;
+    paint.shader = fragmentShader;
     canvas.drawRect(Rect.fromLTRB(0, 0, size.width, size.height), paint);
   }
 
@@ -105,19 +103,20 @@ class _ShaderPainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
 
+// TODO move to the top where shader is specified
 extension PopulateShaderExt on ShaderConfig {
-  void populate(ui.FragmentShader phongShader) {
-    phongShader.setFloat(0, ambientCoefficient);
-    phongShader.setFloat(1, diffuseCoefficient);
-    phongShader.setFloat(2, specularCoefficient);
-    phongShader.setFloat(3, shininess);
+  void populate(ui.FragmentShader shader) {
+    shader.setFloat(0, ambientCoefficient);
+    shader.setFloat(1, diffuseCoefficient);
+    shader.setFloat(2, specularCoefficient);
+    shader.setFloat(3, shininess);
 
-    phongShader.setFloat(4, ambientColor.x);
-    phongShader.setFloat(5, ambientColor.y);
-    phongShader.setFloat(6, ambientColor.z);
+    shader.setFloat(4, ambientColor.x);
+    shader.setFloat(5, ambientColor.y);
+    shader.setFloat(6, ambientColor.z);
 
-    phongShader.setFloat(7, specularColor.x);
-    phongShader.setFloat(8, specularColor.y);
-    phongShader.setFloat(9, specularColor.z);
+    shader.setFloat(7, specularColor.x);
+    shader.setFloat(8, specularColor.y);
+    shader.setFloat(9, specularColor.z);
   }
 }

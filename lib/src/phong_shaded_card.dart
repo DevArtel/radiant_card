@@ -57,7 +57,7 @@ class PhongShadedCard extends StatelessWidget {
             surfaceNormal: normal,
             image: images[0],
             mask: images[1],
-            phongProgram: shader,
+            shader: shader,
             config: config,
           ),
           emptyBuilder: (context) => Image.asset(mainTextureFile),
