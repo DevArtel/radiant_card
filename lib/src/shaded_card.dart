@@ -7,23 +7,24 @@ import 'oriented_card.dart';
 import 'shader_config.dart';
 import 'shader_context_widget.dart';
 
-// TODO viewerPos is always (0, 0, -1) in oriented card or replace them with angles in constructor parameters?
 // TODO Fix flickering on rotation start
 // TODO Animation depends on phone orientation
-// TODO Global illumination
 // TODO LightPosAnimator
-// TODO Customizable card aspect ratio
-// TODO Enable library to work with plain Widget instead of texture filenames
+// TODO Enable library to work with Flutter widgets instead of textures
 // TODO Publish
 class RotatableShadedCard extends StatelessWidget {
   final String mainTextureFile, maskFile;
   final ShaderConfig? shaderConfig;
+  final Vector3 centerPos;
+  final Size worldSize;
 
   const RotatableShadedCard({
     super.key,
     required this.mainTextureFile,
     required this.maskFile,
     this.shaderConfig,
+    required this.centerPos,
+    required this.worldSize,
   });
 
   @override
@@ -33,6 +34,8 @@ class RotatableShadedCard extends StatelessWidget {
           maskFile: maskFile,
           normal: normal,
           shaderConfig: shaderConfig,
+          centerPos: centerPos,
+          worldSize: worldSize,
         ),
       );
 }
@@ -43,6 +46,8 @@ class ShadedCard extends StatelessWidget {
   final ShaderConfig shaderConfig;
   final Vector3 lightPos;
   final Vector3 viewerPos;
+  final Vector3 centerPos;
+  final Size worldSize;
 
   ShadedCard({
     super.key,
@@ -52,9 +57,11 @@ class ShadedCard extends StatelessWidget {
     Vector3? normal,
     Vector3? lightPos,
     Vector3? viewerPos,
+    required this.centerPos,
+    required this.worldSize,
   })  : shaderConfig = shaderConfig ?? DefaultPhongShaderConfig(),
         normal = normal ?? Vector3(0, 0, -1),
-        lightPos = lightPos ?? Vector3(0, 0, -1),
+        lightPos = lightPos ?? Vector3(0, 0, -0.25),
         viewerPos = viewerPos ?? Vector3(0, 0, -1);
 
   @override
@@ -66,7 +73,7 @@ class ShadedCard extends StatelessWidget {
             normal: normal,
             fragmentProgram: fragmentProgram,
             viewerPos: viewerPos,
-            configurator: (shader, size) => shaderConfig.apply(shader, lightPos, size, normal, viewerPos, images),
+            configurator: (shader, size) => shaderConfig.apply(shader, lightPos, size, normal, viewerPos, images, centerPos, worldSize),
           ),
           emptyBuilder: (context) => Image.asset(mainTextureFile),
         ),

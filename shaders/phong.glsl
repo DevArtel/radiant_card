@@ -11,9 +11,11 @@ uniform float shininessVal; // Shininess
 uniform vec3 ambientColor; // Material color
 uniform vec3 specularColor; // Material color
 uniform vec3 lightPos; // Light position
-uniform vec2 viewportSize; // viewport size
+uniform vec2 canvasSize; // canvas size
 uniform vec3 surfaceNormal; // surface normal
 uniform vec3 viewerPos; // viewer position
+uniform vec3 offset; // offset (world coordinates)
+uniform vec3 worldSize; // size (world coordinates)
 
 uniform sampler2D mainTexture; // image texture
 uniform sampler2D maskTexture; // mask texture
@@ -41,33 +43,35 @@ void main() {
     float maskShineness = 10.0;
     float targetHue = 5.0 / 6.0;
 
-    float scaleFactor = min(viewportSize.x, viewportSize.y);
-
     vec4 mainTextureColor = texture(
         mainTexture,
-        vec2(gl_FragCoord.x / viewportSize.x, gl_FragCoord.y / viewportSize.y)
+        vec2(gl_FragCoord.x / canvasSize.x, gl_FragCoord.y / canvasSize.y)
     );
 
     vec4 maskTextureColor = texture(
         maskTexture,
-        vec2(gl_FragCoord.x / viewportSize.x, gl_FragCoord.y / viewportSize.y)
+        vec2(gl_FragCoord.x / canvasSize.x, gl_FragCoord.y / canvasSize.y)
     );
 
     vec3 vertPos = vec3(
-        (gl_FragCoord.x - viewportSize.x / 2.0) / scaleFactor,
-        (gl_FragCoord.y - viewportSize.y / 2.0) / scaleFactor,
+        (gl_FragCoord.x - canvasSize.x / 2.0) / canvasSize.x * worldSize.x,
+        (gl_FragCoord.y - canvasSize.y / 2.0) / canvasSize.y * worldSize.y,
         0
-    );
+    ) + offset;
+
+    vec3 lightPosLocal = lightPos;
+    vec3 viewerPosLocal = viewerPos;
+    vec3 vertPosLocal = vertPos;
 
     vec3 N = normalize(surfaceNormal);
-    vec3 L = normalize(lightPos - vertPos);
+    vec3 L = normalize(lightPosLocal - vertPosLocal);
 
     // Lambert's cosine law
     float lambertian = max(dot(N, L), 0.0);
     float specular = 0.0;
     if (lambertian > 0.0) {
         vec3 R = reflect(-L, N);      // Reflected light vector
-        vec3 V = normalize(viewerPos - vertPos); // Vector to viewer
+        vec3 V = normalize(viewerPosLocal - vertPosLocal); // Vector to viewer
         float specAngle = max(dot(R, V), 0.0);
         specular = pow(specAngle, shininessVal * (1.0 - maskTextureColor.a) + maskShineness * maskTextureColor.a);
     }

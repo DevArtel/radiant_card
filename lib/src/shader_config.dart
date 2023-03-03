@@ -5,7 +5,7 @@ import 'package:vector_math/vector_math.dart';
 class DefaultPhongShaderConfig extends PhongShaderConfig {
   DefaultPhongShaderConfig()
       : super(
-          ambientCoefficient: 1,
+          ambientCoefficient: 0,
           diffuseCoefficient: 1,
           specularCoefficient: 1,
           shininess: 80,
@@ -35,10 +35,12 @@ class PhongShaderConfig extends ShaderConfig {
   void apply(
     FragmentShader shader,
     Vector3 lightPos,
-    Size size,
+    Size canvasSize,
     Vector3 normal,
     Vector3 viewerPos,
     List<Image> images,
+    Vector3 offset,
+    Size worldSize,
   ) {
     shader.setFloat(0, ambientCoefficient);
     shader.setFloat(1, diffuseCoefficient);
@@ -55,8 +57,8 @@ class PhongShaderConfig extends ShaderConfig {
     shader.setFloat(11, lightPos.y);
     shader.setFloat(12, lightPos.z);
 
-    shader.setFloat(13, size.width);
-    shader.setFloat(14, size.height);
+    shader.setFloat(13, canvasSize.width);
+    shader.setFloat(14, canvasSize.height);
 
     shader.setFloat(15, normal.x);
     shader.setFloat(16, normal.y);
@@ -65,6 +67,13 @@ class PhongShaderConfig extends ShaderConfig {
     shader.setFloat(18, viewerPos.x);
     shader.setFloat(19, viewerPos.y);
     shader.setFloat(20, viewerPos.z);
+
+    shader.setFloat(21, offset.x);
+    shader.setFloat(22, offset.y);
+    shader.setFloat(23, offset.z);
+
+    shader.setFloat(24, worldSize.width);
+    shader.setFloat(25, worldSize.height);
 
     shader.setImageSampler(0, images[0]);
     shader.setImageSampler(1, images[1]);
@@ -76,5 +85,14 @@ abstract class ShaderConfig {
 
   ShaderConfig(this.fragmentProgramAsset);
 
-  void apply(FragmentShader shader, Vector3 lightPos, Size size, Vector3 normal, Vector3 viewerPos, List<Image> images);
+  void apply(
+      FragmentShader shader,
+      Vector3 lightPos,
+      Size canvasSize,
+      Vector3 normal,
+      Vector3 viewerPos,
+      List<Image> images,
+      Vector3 offset,
+      Size worldSize,
+  );
 }
