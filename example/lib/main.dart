@@ -60,45 +60,47 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: const Text('Cards demo'),
       ),
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          final containerWidth = constraints.maxWidth;
-          final containerHeight = constraints.maxHeight;
-          final cardWidth = (containerWidth - 2 * _gridViewPadding - (_widthInCards - 1) * _cardSpacing) / _widthInCards;
-          final cardHeight = cardWidth / _cardAspectRatio;
-          return GridView.count(
-            padding: const EdgeInsets.all(_gridViewPadding),
-            crossAxisCount: _widthInCards,
-            crossAxisSpacing: _cardSpacing,
-            mainAxisSpacing: _cardSpacing,
-            childAspectRatio: _cardAspectRatio,
-            controller: _controller,
-            children: List.generate(
-              _widthInCards * _heightInCards,
-              (index) {
-                final i = index % _widthInCards;
-                final j = index ~/ _widthInCards;
+      body: ImageContextWidget(
+        imageFiles: const ["assets/images/pikachu.png", "assets/images/mask_1.png"],
+        builder: (context, images) {
+          return LayoutBuilder(
+            builder: (context, constraints) {
+              final containerWidth = constraints.maxWidth;
+              final containerHeight = constraints.maxHeight;
+              final cardWidth = (containerWidth - 2 * _gridViewPadding - (_widthInCards - 1) * _cardSpacing) / _widthInCards;
+              final cardHeight = cardWidth / _cardAspectRatio;
+              return GridView.count(
+                padding: const EdgeInsets.all(_gridViewPadding),
+                crossAxisCount: _widthInCards,
+                crossAxisSpacing: _cardSpacing,
+                mainAxisSpacing: _cardSpacing,
+                childAspectRatio: _cardAspectRatio,
+                controller: _controller,
+                children: List.generate(
+                  _widthInCards * _heightInCards,
+                  (index) {
+                    final i = index % _widthInCards;
+                    final j = index ~/ _widthInCards;
 
-                final cardCenterContainerXCoord = _gridViewPadding + i * (cardWidth + _cardSpacing) + cardWidth / 2 - containerWidth / 2;
-                final cardCenterContainerYCoord = _gridViewPadding + j * (cardHeight + _cardSpacing) + cardHeight / 2 - containerHeight / 2;
+                    final cardCenterContainerXCoord = _gridViewPadding + i * (cardWidth + _cardSpacing) + cardWidth / 2 - containerWidth / 2;
+                    final cardCenterContainerYCoord = _gridViewPadding + j * (cardHeight + _cardSpacing) + cardHeight / 2 - containerHeight / 2;
 
-                final cardCenterWorldXCoord = cardCenterContainerXCoord / containerWidth * _viewportWidth;
-                final cardCenterWorldYCoord = (cardCenterContainerYCoord - _scrollPosition) * _viewportWidth / containerWidth;
+                    final cardCenterWorldXCoord = cardCenterContainerXCoord / containerWidth * _viewportWidth;
+                    final cardCenterWorldYCoord = (cardCenterContainerYCoord - _scrollPosition) * _viewportWidth / containerWidth;
 
-                // print("cardCenterWorldCoord($i, $j) = (${cardCenterWorldXCoord.toStringAsFixed(3)}, ${cardCenterWorldYCoord.toStringAsFixed(3)})");
-
-                return ShadedCard(
-                  // mainTextureFile: "assets/images/img.png",
-                  mainTextureFile: "assets/images/pikachu.png",
-                  maskFile: "assets/images/mask_1.png",
-                  centerPos: Vector3(cardCenterWorldXCoord, cardCenterWorldYCoord, 0),
-                  worldSize: Size(cardWidth / containerWidth * _viewportWidth, cardHeight / containerWidth * _viewportWidth),
-                );
-                // return Container(color: Colors.red);
-              },
-            ),
+                    return ShadedCard(
+                      mainTexture: images[0],
+                      mask: images[1],
+                      centerPos: Vector3(cardCenterWorldXCoord, cardCenterWorldYCoord, 0),
+                      worldSize: Size(cardWidth / containerWidth * _viewportWidth, cardHeight / containerWidth * _viewportWidth),
+                    );
+                  },
+                ),
+              );
+            }
           );
-        }
+        },
+        emptyBuilder: (context) => const SizedBox.shrink(),
       ),
       backgroundColor: Colors.white,
       floatingActionButton: FloatingActionButton(

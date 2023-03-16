@@ -38,7 +38,8 @@ class PhongShaderConfig extends ShaderConfig {
     Size canvasSize,
     Vector3 normal,
     Vector3 viewerPos,
-    List<Image> images,
+    Image mainTexture,
+    Image mask,
     Vector3 offset,
     Size worldSize,
   ) {
@@ -75,8 +76,8 @@ class PhongShaderConfig extends ShaderConfig {
     shader.setFloat(24, worldSize.width);
     shader.setFloat(25, worldSize.height);
 
-    shader.setImageSampler(0, images[0]);
-    shader.setImageSampler(1, images[1]);
+    shader.setImageSampler(0, mainTexture);
+    shader.setImageSampler(1, mask);
   }
 }
 
@@ -91,7 +92,8 @@ abstract class ShaderConfig {
       Size canvasSize,
       Vector3 normal,
       Vector3 viewerPos,
-      List<Image> images,
+      Image mainTexture,
+      Image mask,
       Vector3 offset,
       Size worldSize,
   );

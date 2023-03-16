@@ -1,7 +1,8 @@
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
 import 'package:vector_math/vector_math.dart';
 
-import 'image_context_widget.dart';
 import 'orientation_controller.dart';
 import 'oriented_card.dart';
 import 'shader_config.dart';
@@ -13,15 +14,15 @@ import 'shader_context_widget.dart';
 // TODO Enable library to work with Flutter widgets instead of textures
 // TODO Publish
 class RotatableShadedCard extends StatelessWidget {
-  final String mainTextureFile, maskFile;
+  final ui.Image mainTexture, mask;
   final ShaderConfig? shaderConfig;
   final Vector3 centerPos;
   final Size worldSize;
 
   const RotatableShadedCard({
     super.key,
-    required this.mainTextureFile,
-    required this.maskFile,
+    required this.mainTexture,
+    required this.mask,
     this.shaderConfig,
     required this.centerPos,
     required this.worldSize,
@@ -30,8 +31,8 @@ class RotatableShadedCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) => OrientationController(
         builder: (context, normal) => ShadedCard(
-          mainTextureFile: mainTextureFile,
-          maskFile: maskFile,
+          mainTexture: mainTexture,
+          mask: mask,
           normal: normal,
           shaderConfig: shaderConfig,
           centerPos: centerPos,
@@ -42,7 +43,7 @@ class RotatableShadedCard extends StatelessWidget {
 
 class ShadedCard extends StatelessWidget {
   final Vector3 normal;
-  final String mainTextureFile, maskFile;
+  final ui.Image mainTexture, mask;
   final ShaderConfig shaderConfig;
   final Vector3 lightPos;
   final Vector3 viewerPos;
@@ -51,8 +52,8 @@ class ShadedCard extends StatelessWidget {
 
   ShadedCard({
     super.key,
-    required this.mainTextureFile,
-    required this.maskFile,
+    required this.mainTexture,
+    required this.mask,
     ShaderConfig? shaderConfig,
     Vector3? normal,
     Vector3? lightPos,
@@ -67,16 +68,22 @@ class ShadedCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) => FragmentProgramContextWidget(
         fragmentProgramAsset: shaderConfig.fragmentProgramAsset,
-        builder: (context, fragmentProgram) => ImageContextWidget(
-          imageFiles: [mainTextureFile, maskFile],
-          builder: (context, images) => OrientedCard(
-            normal: normal,
-            fragmentProgram: fragmentProgram,
-            viewerPos: viewerPos,
-            configurator: (shader, size) => shaderConfig.apply(shader, lightPos, size, normal, viewerPos, images, centerPos, worldSize),
+        builder: (context, fragmentProgram) => OrientedCard(
+          normal: normal,
+          fragmentProgram: fragmentProgram,
+          viewerPos: viewerPos,
+          configurator: (shader, size) => shaderConfig.apply(
+            shader,
+            lightPos,
+            size,
+            normal,
+            viewerPos,
+            mainTexture,
+            mask,
+            centerPos,
+            worldSize,
           ),
-          emptyBuilder: (context) => Image.asset(mainTextureFile),
         ),
-        emptyBuilder: (context) => Image.asset(mainTextureFile),
+        emptyBuilder: (context) => const SizedBox.shrink(),
       );
 }
