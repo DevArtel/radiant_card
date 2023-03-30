@@ -8,10 +8,9 @@ import 'oriented_card.dart';
 import 'shader_config.dart';
 import 'shader_context_widget.dart';
 
-// TODO Fix flickering on rotation start
+// TODO support Flutter animations in rendered-to-texture widgets
 // TODO Animation depends on phone orientation
 // TODO LightPosAnimator
-// TODO Enable library to work with Flutter widgets instead of textures
 // TODO Publish
 class RotatableShadedCard extends StatelessWidget {
   final ui.Image mainTexture, mask;

@@ -26,8 +26,8 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  static const _widthInCards = 3;
-  static const _heightInCards = 10;
+  static const _widthInCards = 1;
+  static const _heightInCards = 1;
 
   static const _viewportWidth = 1;
 
@@ -88,24 +88,40 @@ class _MyHomePageState extends State<MyHomePage> {
                   final cardCenterWorldYCoord = (cardCenterContainerYCoord - _scrollPosition) * _viewportWidth / containerWidth;
 
                   return WidgetToImageBuilder(
-                    widget: Container(
+                    child: Container(
                       color: Colors.blue,
                       alignment: Alignment.center,
-                      child: const Text(
-                        "This is a text widget",
-                        style: TextStyle(color: Colors.red),
+                      child: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          Image.asset(
+                            'assets/images/den.jpg', // TODO make sure this image exists
+                            fit: BoxFit.cover,
+                          ),
+                          Positioned(
+                            bottom: 80,
+                            left: 0,
+                            right: 0,
+                            child: Container(
+                              color: Colors.black,
+                              child: const Text(
+                                "УКЛАДКА ДЕРЖИТСЯ ИДЕАЛЬНО",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(fontSize: 24, color: Colors.white, fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    builder: (context, widgetImage) {
-                      // return ShadedCard(
-                      //   mainTexture: widgetImage,
-                      //   mask: images[1],
-                      //   centerPos: Vector3(cardCenterWorldXCoord, cardCenterWorldYCoord, 0),
-                      //   worldSize: Size(cardWidth / containerWidth * _viewportWidth, cardHeight / containerWidth * _viewportWidth),
-                      // );
-                      return RawImage(image: widgetImage);
-                    },
-                    emptyBuilder: (context) => const SizedBox.shrink(),
+                    builder: (context, widgetImage) => widgetImage == null
+                        ? const SizedBox.shrink()
+                        : RotatableShadedCard(
+                            mainTexture: widgetImage,
+                            mask: images[1],
+                            centerPos: Vector3(cardCenterWorldXCoord, cardCenterWorldYCoord, 0),
+                            worldSize: Size(cardWidth / containerWidth * _viewportWidth, cardHeight / containerWidth * _viewportWidth),
+                          ),
                   );
                 },
               ),
