@@ -2,7 +2,7 @@ name: radiant_card
 description: Just this https://deck-24abcd.netlify.app in flutter
 repository: https://github.com/DevArtel/radiant_card
 
-version: 0.1.0+100
+version: 0.1.1+101
 
 environment:
   sdk: ">=2.18.0 <4.0.0"

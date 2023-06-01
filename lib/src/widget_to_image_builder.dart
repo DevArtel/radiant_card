@@ -19,26 +19,49 @@ class WidgetToImageBuilder extends StatefulWidget {
   State<WidgetToImageBuilder> createState() => _WidgetToImageBuilderState();
 }
 
-class _WidgetToImageBuilderState extends State<WidgetToImageBuilder> {
+class _WidgetToImageBuilderState extends State<WidgetToImageBuilder> with SingleTickerProviderStateMixin<WidgetToImageBuilder> {
   final _offstageKey = GlobalKey();
-  final _completer = Completer<ui.Image>();
+
+  final StreamController<ui.Image> _streamController = StreamController();
+
+  Stream<ui.Image>? _imageStream;
 
   late final double _pixelRatio;
+  late final AnimationController _animationController;
+
+  @override
+  void initState() {
+    super.initState();
+    _imageStream = _streamController.stream;
+    _animationController = AnimationController(vsync: this)
+      ..addListener(() {
+        setState(() {
+          _repaint();
+        });
+      });
+    _animationController.repeat(period: const Duration(seconds: 1));
+  }
+
+  Future<void> _repaint() async {
+    final image = await _getUiImage(
+      key: _offstageKey,
+      pixelRatio: _pixelRatio,
+    );
+    if (image != null) {
+      _streamController.add(image);
+    }
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _animationController.dispose();
+  }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     _pixelRatio = MediaQuery.of(context).devicePixelRatio;
-    doAsync();
-  }
-
-  Future<void> doAsync() async {
-    await Future.delayed(const Duration(seconds: 1));
-    final image = await _getUiImage(
-      key: _offstageKey,
-      pixelRatio: _pixelRatio,
-    );
-    _completer.complete(image);
   }
 
   @override
@@ -54,18 +77,21 @@ class _WidgetToImageBuilderState extends State<WidgetToImageBuilder> {
           ),
         ),
       ),
-      FutureBuilder(
-        future: _completer.future,
+      if (_imageStream != null) StreamBuilder(
+        stream: _imageStream,
         builder: (context, snapshot) => widget.builder(context, snapshot.data),
       ),
     ],
   );
 }
 
-Future<ui.Image> _getUiImage({
+Future<ui.Image?> _getUiImage({
   required GlobalKey<State> key,
   required double pixelRatio,
 }) async {
+  if (key.currentContext == null) {
+    return null;
+  }
   final boundary = key.currentContext!.findRenderObject()! as RenderRepaintBoundary;
   return boundary.toImage(pixelRatio: pixelRatio);
 }

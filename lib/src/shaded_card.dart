@@ -8,7 +8,7 @@ import 'oriented_card.dart';
 import 'shader_config.dart';
 import 'shader_context_widget.dart';
 
-// TODO support Flutter animations in rendered-to-texture widgets
+// TODO fix exceptions in `flutter run --profile`
 // TODO Animation depends on phone orientation
 // TODO LightPosAnimator
 // TODO Publish

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:marquee/marquee.dart';
 import 'package:radiant_card/radiant_card.dart';
 import 'package:vector_math/vector_math.dart' hide Colors;
 
@@ -88,32 +89,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   final cardCenterWorldYCoord = (cardCenterContainerYCoord - _scrollPosition) * _viewportWidth / containerWidth;
 
                   return WidgetToImageBuilder(
-                    child: Container(
-                      color: Colors.blue,
-                      alignment: Alignment.center,
-                      child: Stack(
-                        fit: StackFit.expand,
-                        children: [
-                          Image.asset(
-                            'assets/images/den.jpg', // TODO make sure this image exists
-                            fit: BoxFit.cover,
-                          ),
-                          Positioned(
-                            bottom: 80,
-                            left: 0,
-                            right: 0,
-                            child: Container(
-                              color: Colors.black,
-                              child: const Text(
-                                "УКЛАДКА ДЕРЖИТСЯ ИДЕАЛЬНО",
-                                textAlign: TextAlign.center,
-                                style: TextStyle(fontSize: 24, color: Colors.white, fontWeight: FontWeight.bold),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                    child: const AttaboyWidget(),
                     builder: (context, widgetImage) => widgetImage == null
                         ? const SizedBox.shrink()
                         : RotatableShadedCard(
@@ -136,6 +112,44 @@ class _MyHomePageState extends State<MyHomePage> {
         onPressed: () {
           setState(() {});
         },
+      ),
+    );
+  }
+}
+
+class AttaboyWidget extends StatelessWidget {
+  const AttaboyWidget({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: Colors.blue,
+      alignment: Alignment.center,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          Image.asset(
+            'assets/images/den.jpg', // TODO make sure this image exists
+            fit: BoxFit.cover,
+          ),
+          Positioned(
+            bottom: 80,
+            left: 0,
+            right: 0,
+            child: Container(
+              color: Colors.black,
+              height: 48,
+              child: Marquee(
+                text: "УКЛАДКА ДЕРЖИТСЯ ИДЕАЛЬНО",
+                crossAxisAlignment: CrossAxisAlignment.center,
+                style: const TextStyle(fontSize: 24, color: Colors.white, fontWeight: FontWeight.bold),
+                blankSpace: 32.0,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
