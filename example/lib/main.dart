@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:ohso3d/ohso3d.dart';
+import 'package:radiant_card/radiant_card.dart';
 import 'package:vector_math/vector_math.dart' hide Colors;
 
 void main() {

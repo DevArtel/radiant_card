@@ -1,4 +1,4 @@
-package io.devartel.ohso3d
+package io.devartel.radiant_card
 
 import io.flutter.embedding.android.FlutterActivity
 

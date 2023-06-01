@@ -22,7 +22,7 @@ class PhongShaderConfig extends ShaderConfig {
     required this.shininess,
     required this.ambientColor,
     required this.specularColor,
-  }) : super('packages/ohso3d/shaders/phong.glsl');
+  }) : super('packages/radiant_card/shaders/phong.glsl');
 
   final double ambientCoefficient;
   final double diffuseCoefficient;

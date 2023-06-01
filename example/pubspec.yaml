@@ -14,7 +14,7 @@ dependencies:
 
   cupertino_icons: ^1.0.2
 
-  ohso3d:
+  radiant_card:
     path: '../'
 
   vector_math: 2.1.4
