@@ -1,9 +1,7 @@
 name: radiant_card
 description: Just this https://deck-24abcd.netlify.app in flutter
 
-publish_to: 'none'
-
-version: 1.0.0+1
+version: 0.1.0+100
 
 environment:
   sdk: ">=2.18.0 <3.0.0"
